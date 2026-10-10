@@ -1,0 +1,5 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.jakedaxon.cybergolden.tests" android:versionCode="1" android:versionName="1">
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="36" />
+    <application android:label="CyberGolden Test Harness" android:debuggable="true" />
+    <instrumentation android:name="com.jakedaxon.cybergolden.AndroidTestRunner" android:targetPackage="com.jakedaxon.cybergolden" android:functionalTest="true" />
+</manifest>

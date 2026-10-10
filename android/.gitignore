@@ -1,0 +1,8 @@
+build/
+assets/
+res/drawable/pet_icon.png
+local.properties
+*.jks
+*.keystore
+*.apk
+*.idsig

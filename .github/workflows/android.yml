@@ -1,0 +1,56 @@
+name: Android build and runtime validation
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'android/**'
+      - 'tools/*android*'
+      - '.github/workflows/android.yml'
+permissions:
+  contents: read
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Prepare official SDK
+        run: |
+          python3 -m pip install Pillow
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'platform-tools' 'emulator' 'system-images;android-35;default;x86_64'
+      - name: Build app and separate test harness
+        run: bash tools/build-android-linux.sh
+      - name: Run on real Android emulator
+        run: |
+          sudo chmod 666 /dev/kvm
+          echo no | avdmanager create avd -n CyberGoldenCI -k 'system-images;android-35;default;x86_64' --force
+          "$ANDROID_HOME/emulator/emulator" -avd CyberGoldenCI -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -no-metrics > /tmp/cybergolden-emulator.log 2>&1 &
+          adb wait-for-device
+          for i in $(seq 1 120); do
+            if [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ]; then break; fi
+            sleep 3
+          done
+          test "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1
+          adb shell input keyevent 82
+          adb install android/build/ci-app.apk
+          adb install android/build/instrumentation/tests.apk
+          adb shell appops set com.jakedaxon.cybergolden SYSTEM_ALERT_WINDOW allow
+          adb shell pm grant com.jakedaxon.cybergolden android.permission.POST_NOTIFICATIONS
+          adb shell am instrument -w com.jakedaxon.cybergolden.tests/com.jakedaxon.cybergolden.AndroidTestRunner | tee verification/android/runtime-test.log
+          grep -Eq 'PASS: [0-9]+ Android runtime assertions' verification/android/runtime-test.log
+          adb exec-out run-as com.jakedaxon.cybergolden.tests cat files/main.png > verification/android/main.png
+          adb logcat -d -s AndroidRuntime:E CyberGolden:E > verification/android/app-errors.log
+          test ! -s verification/android/app-errors.log || ! grep -q 'FATAL EXCEPTION' verification/android/app-errors.log
+          adb uninstall com.jakedaxon.cybergolden.tests
+          adb uninstall com.jakedaxon.cybergolden
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-verification
+          path: verification/android/
+          retention-days: 14

@@ -6,6 +6,16 @@ tools/dotnet/
 tools/nuget/
 tools/pythonlibs/
 tools/inno/
+tools/android-sdk/
+tools/android-downloads/
+.android-private/
+android/build/
+android/assets/
+android/res/drawable/pet_icon.png
+*.jks
+*.keystore
+*.apk
+*.idsig
 tools/installer-stage-*/
 dist/
 test-data/
