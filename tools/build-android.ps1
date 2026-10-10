@@ -36,7 +36,13 @@ try {
 $classes=@(Get-ChildItem "$build/classes" -Recurse -Filter '*.class' | ForEach-Object FullName)
 Run-Checked "$bt/d8.bat" (@('--release','--min-api','26','--lib',$platform,'--output',"$build/dex")+$classes)
 Copy-Item -LiteralPath "$build/base.apk" -Destination "$build/unsigned.apk" -Force
-Run-Checked "$JavaHome/bin/jar.exe" @('uf',"$build/unsigned.apk",'-C',"$build/dex",'classes.dex')
+$jarReady=$false
+for($attempt=0;$attempt -lt 4;$attempt++){
+  & "$JavaHome/bin/jar.exe" 'uf' "$build/unsigned.apk" '-C' "$build/dex" 'classes.dex'
+  if($LASTEXITCODE -eq 0){$jarReady=$true;break}
+  Start-Sleep -Milliseconds 800
+}
+if(-not $jarReady){throw 'JAR packaging failed after transient file-lock retries'}
 Copy-Item "$build/unsigned.apk" -Destination "$nativeStage/unsigned.apk" -Force
 Push-Location $nativeStage
 try { Run-Checked "$bt/zipalign.exe" @('-f','-p','4','unsigned.apk','aligned.apk');Copy-Item 'aligned.apk' -Destination "$build/aligned.apk" -Force } finally { Pop-Location }

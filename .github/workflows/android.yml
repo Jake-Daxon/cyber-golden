@@ -21,8 +21,19 @@ jobs:
       - name: Prepare official SDK
         run: |
           python3 -m pip install Pillow
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'platform-tools' 'emulator' 'system-images;android-35;default;x86_64'
+          export ANDROID_HOME="${ANDROID_HOME:-$RUNNER_TEMP/android-sdk}"
+          if [ ! -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+            curl -fL https://dl.google.com/android/repository/commandlinetools-linux-15859902_latest.zip -o /tmp/sdktools.zip
+            echo '4e4c464f145a7512b57d088ac6c278c03c9eea610886b35a5e0804e74eedf583  /tmp/sdktools.zip' | sha256sum -c -
+            unzip -q /tmp/sdktools.zip -d /tmp/sdktools
+            mkdir -p "$ANDROID_HOME/cmdline-tools"
+            mv /tmp/sdktools/cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
+          fi
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0' 'platform-tools' 'emulator' 'system-images;android-35;default;x86_64'
       - name: Build app and separate test harness
         run: bash tools/build-android-linux.sh
       - name: Run on real Android emulator

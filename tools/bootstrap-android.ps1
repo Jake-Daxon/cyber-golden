@@ -17,8 +17,8 @@ if(-not (Test-Path "$sdk/cmdline-tools/latest/bin/sdkmanager.bat")){
 # Standard SDK licences for the requested Android development, not a device setting.
 @('y')*100 | & "$sdk/cmdline-tools/latest/bin/sdkmanager.bat" "--sdk_root=$sdk" --licenses | Out-File (Join-Path $cache 'licenses.log')
 if($LASTEXITCODE -ne 0){throw 'SDK licences failed'}
-& "$sdk/cmdline-tools/latest/bin/sdkmanager.bat" "--sdk_root=$sdk" 'platforms;android-36' 'build-tools;36.0.0' 'platform-tools'
-if($LASTEXITCODE -ne 0){throw 'SDK install failed'}
+& "$sdk/cmdline-tools/latest/bin/sdkmanager.bat" "--sdk_root=$sdk" 'platforms;android-36' 'build-tools;36.0.0' 'platform-tools' | Out-File (Join-Path $cache 'sdk-install.log')
+if($LASTEXITCODE -ne 0){Write-Output 'Standard SDK installer incomplete; checking verified direct extraction.'}
 function Install-Direct([string]$url,[string]$sha1,[string]$archiveFolder,[string]$destination){
   $zip=Join-Path $cache $url
   & curl.exe -L --fail --connect-timeout 15 --max-time 900 --silent --show-error ("https://dl.google.com/android/repository/"+$url) -o $zip
