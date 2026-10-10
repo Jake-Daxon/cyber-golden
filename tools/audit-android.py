@@ -1,7 +1,7 @@
 """Audit the exact signed delivery APK; never substitute a CI-signed test build."""
 from pathlib import Path
 import zipfile,json,hashlib
-root=Path(__file__).resolve().parents[1];apk=root/'dist/CyberGolden-Android-0.1.0.apk'
+root=Path(__file__).resolve().parents[1];apk=root/'dist/CyberGolden-Android-0.1.1.apk'
 manifest=json.loads((root/'assets/pet/manifest.json').read_text('utf-8'))
 expected=[root/'assets/pet/manifest.json']
 for action in manifest['actions'].values():expected.extend((root/'assets/pet'/action['directory']).glob('*.png'))

@@ -65,6 +65,8 @@ jobs:
           timeout 120 adb shell am instrument -w com.jakedaxon.cybergolden.tests/com.jakedaxon.cybergolden.AndroidTestRunner | tee verification/android/runtime-test.log
           grep -Eq 'PASS: [0-9]+ Android runtime assertions' verification/android/runtime-test.log
           adb pull /data/local/tmp/cybergolden-main.png verification/android/main.png
+          adb pull /data/local/tmp/cybergolden-menu-top.png verification/android/menu-top.png
+          adb pull /data/local/tmp/cybergolden-menu-bottom.png verification/android/menu-bottom.png
           adb logcat -d -s AndroidRuntime:E CyberGolden:E > verification/android/app-errors.log
           test ! -s verification/android/app-errors.log || ! grep -q 'FATAL EXCEPTION' verification/android/app-errors.log
           adb uninstall com.jakedaxon.cybergolden.tests

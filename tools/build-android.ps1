@@ -58,15 +58,15 @@ if(-not (Test-Path $key)){
   }
   Run-Checked "$JavaHome/bin/keytool.exe" @('-genkeypair','-keystore',$key,'-storepass:file',$pass,'-keypass:file',$pass,'-alias','cybergolden','-keyalg','RSA','-keysize','3072','-validity','10950','-dname','CN=CyberGolden Android, OU=Independent Project')
 }
-$apk=Join-Path $dist 'CyberGolden-Android-0.1.0.apk'
+$apk=Join-Path $dist 'CyberGolden-Android-0.1.1.apk'
 Run-Checked "$bt/apksigner.bat" @('sign','--ks',$key,'--ks-key-alias','cybergolden','--ks-pass',"file:$pass",'--out',$apk,"$build/aligned.apk")
 Run-Checked "$bt/apksigner.bat" @('verify','--verbose','--print-certs',$apk)
-Copy-Item $apk -Destination "$nativeStage/CyberGolden-Android-0.1.0.apk" -Force
+Copy-Item $apk -Destination "$nativeStage/CyberGolden-Android-0.1.1.apk" -Force
 Push-Location $nativeStage
 try {
-  Run-Checked "$bt/zipalign.exe" @('-c','-p','4','CyberGolden-Android-0.1.0.apk')
-  Run-Checked "$bt/aapt2.exe" @('dump','badging','CyberGolden-Android-0.1.0.apk')
+  Run-Checked "$bt/zipalign.exe" @('-c','-p','4','CyberGolden-Android-0.1.1.apk')
+  Run-Checked "$bt/aapt2.exe" @('dump','badging','CyberGolden-Android-0.1.1.apk')
 } finally { Pop-Location }
 $hash=(Get-FileHash -LiteralPath $apk -Algorithm SHA256).Hash.ToLowerInvariant()
-[IO.File]::WriteAllText((Join-Path $dist 'Android-SHA256SUMS.txt'),"$hash  CyberGolden-Android-0.1.0.apk`n",[Text.UTF8Encoding]::new($false))
+[IO.File]::WriteAllText((Join-Path $dist 'Android-SHA256SUMS.txt'),"$hash  CyberGolden-Android-0.1.1.apk`n",[Text.UTF8Encoding]::new($false))
 Write-Output "Android APK ready: $apk"

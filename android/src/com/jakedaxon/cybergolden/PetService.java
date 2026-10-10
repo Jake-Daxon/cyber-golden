@@ -81,7 +81,16 @@ public final class PetService extends Service {
         render();return START_NOT_STICKY;
     }
     void persist(){if(!store.save(state)){android.util.Log.e("CyberGolden","Save failed; autonomy paused");state.paused=true;}lastSave=System.currentTimeMillis();}
-    public void command(String command){dismissMenu();assets.stop();state.interact(command,UUID.randomUUID().toString(),System.currentTimeMillis());persist();render();}
+    public void command(String command){
+        dismissMenu();assets.stop();
+        if(command.equals("trot")&&state.energy<30)command="walk";
+        state.interact(command,UUID.randomUUID().toString(),System.currentTimeMillis());
+        if(command.equals("walk")||command.equals("trot")){
+            state.targetX=(float)PetState.clamp(state.x+(state.x<maxX/2?80:-80),0,maxX);
+            state.targetY=state.y;
+        }
+        persist();render();
+    }
     public void fetch(String kind){dismissMenu();assets.stop();state.startToy(kind,maxX,maxY,System.currentTimeMillis());persist();render();}
     public void hide(boolean value){dismissMenu();state.setHidden(value,System.currentTimeMillis());assets.stop();persist();render();((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(NOTICE,notification());}
     public void refreshSettings(){state.normalize();state.cancel();state.stable();assets.stop();workspace();persist();render();}
@@ -118,12 +127,28 @@ public final class PetService extends Service {
             else if(toyAdded){windows.removeView(toy);toyAdded=false;}
         }catch(Exception e){android.util.Log.w("CyberGolden","Companion overlay unavailable",e);}
     }
+    static final String[][] MENU_ACTIONS={
+        {"喂食 +15","eat"},{"喝水","drink"},{"摸摸头","pet"},{"握手","shake"},
+        {"摇尾巴","wag"},{"开心蹦跳","jump"},{"歪头","tilt"},{"舔鼻子","lick"},
+        {"打哈欠","yawn"},{"伸懒腰","stretch"},{"期待撒娇","expect"},
+        {"坐下观察","sitdown"},{"趴下","liedown"},{"趴下休息","companion"},
+        {"睡觉","sleep"},{"叫醒","wake"},{"玩网球","ball"},{"玩玩偶","plush"},
+        {"散步","walk"},{"小跑","trot"},{"回到选定姿势","stable"},
+        {"隐藏狗狗","hide"},{"关闭菜单","close"}
+    };
     private void showMenu(){
         if(!added)return;state.cancel();state.menu=true;state.stable();assets.stop();
-        LinearLayout buttons=new LinearLayout(this);buttons.setOrientation(LinearLayout.VERTICAL);buttons.setPadding(12,8,12,8);buttons.setBackgroundColor(Color.rgb(255,247,237));
-        for(String[] entry:new String[][]{{"喂食 +15","eat"},{"喝水","drink"},{"握手","shake"},{"睡觉 / 叫醒",state.sleeping?"wake":"sleep"},{"网球","ball"},{"隐藏","hide"}}){Button button=new Button(this);button.setText(entry[0]);buttons.addView(button);button.setOnClickListener(v->{String a=entry[1];dismissMenu();if(a.equals("hide"))hide(true);else if(a.equals("ball"))fetch("ball");else command(a);});}
-        menu=new PopupWindow(buttons,(int)(180*density),WindowManager.LayoutParams.WRAP_CONTENT,false);menu.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));menu.setOutsideTouchable(true);menu.setOnDismissListener(()->{state.menu=false;state.lastInput=System.currentTimeMillis();persist();});
-        try{menu.showAtLocation(pet,Gravity.TOP|Gravity.LEFT,(int)PetState.clamp(params.x,0,bounds.width()-180*density),(int)PetState.clamp(params.y,0,Math.max(0,bounds.height()-370*density)));}catch(Exception e){state.menu=false;}
+        ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);scroll.setVerticalScrollBarEnabled(true);scroll.setScrollbarFadingEnabled(false);scroll.setContentDescription("全部互动动作，上下滑动选择");
+        LinearLayout buttons=new LinearLayout(this);buttons.setOrientation(LinearLayout.VERTICAL);buttons.setPadding((int)(10*density),(int)(8*density),(int)(10*density),(int)(8*density));
+        TextView title=new TextView(this);title.setText("全部互动 · 上下滑动");title.setTextSize(14);title.setTextColor(Color.rgb(43,89,148));title.setGravity(Gravity.CENTER);title.setPadding(0,(int)(8*density),0,(int)(8*density));buttons.addView(title);
+        for(String[] entry:MENU_ACTIONS){Button button=new Button(this);button.setText(entry[0]);button.setTextSize(15);button.setAllCaps(false);button.setMinHeight((int)(48*density));buttons.addView(button,new LinearLayout.LayoutParams(-1,-2));button.setOnClickListener(v->{String a=entry[1];dismissMenu();if(a.equals("hide"))hide(true);else if(a.equals("ball")||a.equals("plush"))fetch(a);else if(a.equals("stable"))command("wake");else if(!a.equals("close"))command(a);});}
+        scroll.addView(buttons);
+        int margin=(int)(8*density),width=Math.max(1,Math.min((int)(220*density),bounds.width()-2*margin)),height=Math.max(1,Math.min((int)(420*density),bounds.height()-2*margin));
+        android.graphics.drawable.GradientDrawable background=new android.graphics.drawable.GradientDrawable();background.setColor(Color.rgb(255,247,237));background.setCornerRadius(14*density);
+        menu=new PopupWindow(scroll,width,height,false);menu.setBackgroundDrawable(background);menu.setElevation(8*density);menu.setOutsideTouchable(true);menu.setOnDismissListener(()->{state.menu=false;state.lastInput=System.currentTimeMillis();persist();});
+        int x=(int)PetState.clamp(params.x+params.width,margin,Math.max(margin,bounds.width()-margin-width));
+        int y=(int)PetState.clamp(params.y+params.height/2-height/2,margin,Math.max(margin,bounds.height()-margin-height));
+        try{menu.showAtLocation(pet,Gravity.TOP|Gravity.LEFT,x,y);}catch(Exception e){state.menu=false;menu=null;}
     }
     private void dismissMenu(){if(menu!=null){menu.dismiss();menu=null;}state.menu=false;}
     @Override public void onConfigurationChanged(android.content.res.Configuration config){super.onConfigurationChanged(config);workspace();persist();}

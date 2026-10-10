@@ -56,8 +56,8 @@ public final class MainActivity extends Activity {
         LinearLayout help=card();heading(help,"第一次使用");help.addView(text("1. 点“开启手机桌宠”。\n2. 允许“显示在其他应用上层”。\n3. 返回本 App，狗狗会出现在屏幕上。\n4. 轻点摸头、拖动移动，长按打开菜单。\n5. 通知栏可隐藏、恢复或关闭桌宠。",15,INK));
         help.addView(text("锁屏时停止动画和声音。部分手机需要在系统电池设置中允许后台运行。关闭 App 页面后，已开启的桌宠可继续陪伴；若系统结束了它，重新打开本 App 并点开启即可。",14,MUTED));
         help.addView(button("关闭桌宠",false,()->{stopService(new Intent(this,PetService.class));toast("桌宠已关闭，存档保留");handler.postDelayed(()->{state=store.load();rebuildPreview();update();},300);}));
-        help.addView(button("关于与许可证",false,()->{new AlertDialog.Builder(this).setTitle("赛博金毛 Android 0.1.0").setMessage("完全本地离线，无账号、无广告、无网络权限。\n\n沿用 Windows 版金毛连续帧、声音与行为规则；Android 使用原生显示和状态适配，不运行 WPF/VPet DLL。\n\nVPet：LorisYounger，Apache-2.0。\n犬声：Amada44，CC BY-SA 3.0，已剪辑。\n进食、饮水及呼吸拟音：CC0。\n完整许可证已内置于 assets/licenses。\n\nGitHub：Jake-Daxon/cyber-golden").setPositiveButton("知道了",null).show();}));
-        root.addView(text("ANDROID 0.1.0 · 离线陪伴",12,MUTED));update();
+        help.addView(button("关于与许可证",false,()->{new AlertDialog.Builder(this).setTitle("赛博金毛 Android 0.1.1").setMessage("完全本地离线，无账号、无广告、无网络权限。\n\n沿用 Windows 版金毛连续帧、声音与行为规则；Android 使用原生显示和状态适配，不运行 WPF/VPet DLL。\n\nVPet：LorisYounger，Apache-2.0。\n犬声：Amada44，CC BY-SA 3.0，已剪辑。\n进食、饮水及呼吸拟音：CC0。\n完整许可证已内置于 assets/licenses。\n\nGitHub：Jake-Daxon/cyber-golden").setPositiveButton("知道了",null).show();}));
+        root.addView(text("ANDROID 0.1.1 · 离线陪伴",12,MUTED));update();
     }
     private void row(LinearLayout box,String a,Runnable ar,String b,Runnable br){LinearLayout row=new LinearLayout(this);Button first=button(a,false,ar),second=button(b,false,br);LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(52),1);p.setMargins(0,dp(8),dp(5),0);row.addView(first,p);LinearLayout.LayoutParams q=new LinearLayout.LayoutParams(0,dp(52),1);q.setMargins(dp(5),dp(8),0,0);row.addView(second,q);box.addView(row);}
     interface Bool {void apply(boolean value);}
