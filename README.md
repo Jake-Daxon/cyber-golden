@@ -1,6 +1,6 @@
 # 赛博金毛 CyberGolden
 
-一只安静陪伴你的 Windows 桌面金毛幼犬。基于 [VPet](https://github.com/LorisYounger/VPet) Core 开发，透明无边框、本地离线运行。
+一只安静陪伴你的金毛幼犬，提供 Windows 桌面版与 Android 悬浮桌宠版。基于 [VPet](https://github.com/LorisYounger/VPet) Core 开发，透明无边框、本地离线运行。
 
 <img src="previews/pose-FrontSit-160.png" width="160" height="160" alt="赛博金毛默认正面静坐，双爪落地" />
 
@@ -10,6 +10,7 @@
 
 | 文件 | 用途 |
 |---|---|
+| [下载 Android APK（测试版）](https://github.com/Jake-Daxon/cyber-golden/releases/download/android-v0.1.0/CyberGolden-Android-0.1.0.apk) | Android 8.0+：下载安装后开启悬浮窗权限；iPhone 无法安装 |
 | [下载 Windows 安装 EXE](https://github.com/Jake-Daxon/cyber-golden/releases/download/v0.3.0/CyberGolden-Setup-0.3.0-x64.exe) | 推荐：双击安装，开始菜单、可选桌面快捷方式、卸载 |
 | [下载便携 ZIP](https://github.com/Jake-Daxon/cyber-golden/releases/download/v0.3.0/CyberGolden-Portable-0.3.0-x64.zip) | 解压整个目录，运行 CyberGolden.exe |
 | [逐步安装教程](docs/朋友安装教程.txt) | 先点哪个、后点哪个 |
@@ -17,7 +18,17 @@
 
 面向 Windows 10/11 x64。安装包包含 .NET 运行环境、动画和声音，无需 Steam、原版 VPet、开发工具、账号或 API Key。
 
-## 功能
+## Android 手机版
+
+安卓版复用同一只金毛的动画和声音，默认正面静坐，支持食盆喂食、摸头、握手、睡觉、玩具、饥饿提醒、隐藏和保存。手机使用原生 Android 窗口与 Java 状态适配，Windows 版继续实际使用 VPet Core。安卓 APK 不包含 WPF/VPet DLL。
+
+[安卓安装教程](docs/安卓安装教程.md) · [安卓源码与构建](android/README.md) · [安卓验证报告](docs/安卓验证报告.md)。
+
+安卓版已通过 52 项行为断言及 Android 15 模拟器中的 23 项运行断言、安装/启动/卸载。首次测试版仍需真实品牌手机确认权限和省电表现。
+
+<img src="previews/android-main.png" width="280" alt="安卓 App 与悬浮金毛的真实模拟器截图" />
+
+## Windows 功能
 
 - 普通待机默认正面静坐，双爪落地，不持续循环；坐姿、站姿、趴姿可选择并保存。
 - 保留 CD 自主漫游、拖动、摸头、喂食、喝水、握手、睡觉/叫醒、网球和玩偶互动。
