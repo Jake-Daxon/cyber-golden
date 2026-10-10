@@ -4,7 +4,7 @@ using System.Linq;
 using VPet_Simulator.Core;
 
 namespace CyberGolden;
-public enum Behavior { Idle,Walk,Trot,Tilt,Lick,Yawn,Stretch,Wag,Sit,Lie,Pet,Eat,Drink,Shake,Sleep,Expect,Jump,Welcome,AfkApproach,AfkRest,WatchToy,ChaseToy,Pickup,ReturnToy,Drop,Drag,HungerMove }
+public enum Behavior { Idle,Walk,Trot,Tilt,Lick,Yawn,Stretch,Wag,Sit,Lie,Pet,Eat,Drink,Shake,Sleep,Expect,Jump,Welcome,AfkApproach,AfkRest,WatchToy,ChaseToy,Pickup,ReturnToy,Drop,Drag,HungerMove,Rest }
 public sealed class BehaviorEngine
 {
     public readonly Settings Settings;
@@ -20,6 +20,8 @@ public sealed class BehaviorEngine
     public double Y { get; set; }
     public double TargetX { get; private set; }
     public double HomeX { get; private set; }
+    public double HomeY { get; private set; }
+    public readonly BallMotion Ball=new();
     public double ToyX { get; private set; }
     public double ToyY { get; private set; }
     public bool FaceRight { get; private set; }
@@ -43,6 +45,22 @@ public sealed class BehaviorEngine
     private bool preview;
     private readonly Func<DateTimeOffset> utcNow;
     private readonly HashSet<string> feedRequests=new();
+    private bool resumeHungerAfterDrag;
+    private double nextRepeat;
+    private int repeats;
+    public bool CanClick=>!Settings.Hidden&&!MenuOpen&&!Settings.Sleeping&&!Manual&&Current is (Behavior.Idle or Behavior.AfkRest);
+    private static readonly Behavior[] ClickPool={Behavior.Pet,Behavior.Shake,Behavior.Eat,Behavior.Drink,Behavior.Wag,Behavior.Jump,Behavior.Tilt,Behavior.Lick,Behavior.Yawn,Behavior.Stretch,Behavior.Sit,Behavior.Lie,Behavior.Rest,Behavior.Expect,Behavior.Sleep,Behavior.Idle,Behavior.Walk,Behavior.Trot};
+    public void Click(double x,double y,double direction=double.NaN)
+    {
+        if(!CanClick)return;
+        var lie=Settings.IdlePose=="Lie";var stand=Settings.IdlePose=="Stand";
+        var cx=lie?.30:stand?.22:.455;var cy=lie?.50:stand?.37:.27;var rx=lie?.28:stand?.23:.34;var ry=lie?.20:stand?.23:.26;
+        var head=Math.Pow((x-cx)/rx,2)+Math.Pow((y-cy)/ry,2)<=1;
+        var paws=lie?x>=.04&&x<=.64&&y>=.82&&y<=.96:stand?x>=.12&&x<=.48&&y>=.83&&y<=.96:x>=.14&&x<=.72&&y>=.83&&y<=.96;
+        if(head)Command(Behavior.Pet,direction);
+        else if(paws)Command(Behavior.Shake,direction);
+        else {var pick=random.Next(ClickPool.Length+2);if(pick>=ClickPool.Length)Fetch(pick==ClickPool.Length?"ball":"plush");else Command(ClickPool[pick],direction);}
+    }
     public BehaviorEngine(Settings settings,GameSave pet,int? seed=null,Func<DateTimeOffset>? time=null)
     { Settings=settings;Pet=pet;random=seed.HasValue?new Random(seed.Value):new Random();utcNow=time??(()=>DateTimeOffset.UtcNow);nextTry=30;nextMove=settings.RoamSeconds; }
     public bool Blocked=>Settings.Hidden||Settings.Paused||MenuOpen||Current==Behavior.Drag;
@@ -57,9 +75,9 @@ public sealed class BehaviorEngine
         else Set(Behavior.Idle,false,double.PositiveInfinity);
     }
     private void Set(Behavior behavior,bool manual,double duration)
-    { Current=behavior;Manual=manual;deadline=clock+duration;Epoch++;Changed?.Invoke(); }
+    { Current=behavior;Manual=manual;deadline=clock+duration;repeats=manual&&!Settings.Sleeping&&behavior==Behavior.Jump?2:0;nextRepeat=clock+2;Epoch++;Changed?.Invoke(); }
     private void Cancel()
-    { Epoch++;ToyVisible=false;ToyCarried=false;SoundRequested?.Invoke(null);Manual=false;preview=false; }
+    { Epoch++;ToyVisible=false;ToyCarried=false;SoundRequested?.Invoke(null);Manual=false;preview=false;resumeHungerAfterDrag=false; }
     public void ToggleHidden()
     {
         Cancel();Settings.Hidden=!Settings.Hidden;Settings.Companion=false;
@@ -74,8 +92,18 @@ public sealed class BehaviorEngine
     public void OpenMenu(bool open)
     { MenuOpen=open; if(open){Cancel();Settings.Companion=false;ReturnStable();} Changed?.Invoke(); }
     public void BeginDrag()
-    { Cancel();Settings.Companion=false;Set(Behavior.Drag,true,double.PositiveInfinity);Pet.StrengthFood=Math.Max(0,Pet.StrengthFood-4);UpdateHunger();DataChanged?.Invoke(); }
-    public void EndDrag() { ReturnStable(); }
+    {
+        var hunger=Current==Behavior.HungerMove;
+        if(hunger)Settings.HungerDragCount++;
+        Cancel();resumeHungerAfterDrag=hunger&&Settings.HungerDragCount<=2;
+        Settings.Companion=false;Settings.Sleeping=false;Set(Behavior.Drag,true,double.PositiveInfinity);
+        Pet.StrengthFood=Math.Max(0,Pet.StrengthFood-2);UpdateHunger();DataChanged?.Invoke();CriticalStateChanged?.Invoke();
+    }
+    public void EndDrag() {
+        if(resumeHungerAfterDrag&&Settings.Hungry&&!Settings.Hidden&&!Settings.Paused&&!Settings.Quiet){
+            resumeHungerAfterDrag=false;TargetX=ClampX((WorkLeft+WorkRight-PixelSize)/2);TargetY=ClampY((WorkTop+WorkBottom-PixelSize)/2);FaceRight=TargetX>X;Set(Behavior.HungerMove,false,double.PositiveInfinity);
+        }else {resumeHungerAfterDrag=false;ReturnStable();}
+    }
     public void Command(Behavior command,double interactionX=double.NaN)
     {
         if(command==Behavior.Eat){Feed(null,interactionX);return;}
@@ -112,14 +140,20 @@ public sealed class BehaviorEngine
         else if(command==Behavior.Shake)Pet.Likability+=0.7;
         if(command==Behavior.Expect)
         { TargetX=ClampX(X+Math.Clamp(InteractionX-X,-80*DpiScale,80*DpiScale));FaceRight=TargetX>X; }
-        Set(command,true,command is Behavior.Eat or Behavior.Drink?3.2:command==Behavior.Expect?3:2);
+        if(command is Behavior.Walk or Behavior.Trot){TargetX=ClampX(X+(X<(WorkLeft+WorkRight)/2?80:-80)*DpiScale);TargetY=Y;FaceRight=TargetX>X;}
+        Set(command,true,command is Behavior.Eat or Behavior.Drink?3.2:command==Behavior.Expect?3:command is Behavior.Jump or Behavior.Sit or Behavior.Lie or Behavior.Rest?6:2);
     }
     public void Fetch(string kind)
     {
         if(Settings.Hidden)return;
         Cancel();Settings.Sleeping=false;Settings.Companion=false;
         Pet.StrengthFood=Math.Max(0,Pet.StrengthFood-4);UpdateHunger();DataChanged?.Invoke();
-        ToyKind=kind=="plush"?"plush":"ball";HomeX=X;
+        ToyKind=kind=="plush"?"plush":"ball";HomeX=X;HomeY=Y;
+        if(ToyKind=="ball"){
+            ToyVisible=true;ToyX=X+PixelSize*.75;ToyY=Y+PixelSize*.82;
+            Ball.Reset(ToyX,ToyY,12*DpiScale,WorkLeft+4*DpiScale,WorkRight-4*DpiScale,WorkTop+4*DpiScale,WorkBottom-4*DpiScale,980*DpiScale);
+            Set(Behavior.WatchToy,true,double.PositiveInfinity);return;
+        }
         var distance=(Pet.Strength<25?65:140)*DpiScale;
         var direction=(WorkRight-PixelSize-X)>distance?1:-1;
         TargetX=ClampX(X+direction*distance);FaceRight=direction>0;
@@ -127,6 +161,9 @@ public sealed class BehaviorEngine
         ToyY=Y+PixelSize*.91;
         ToyVisible=true;Set(Behavior.WatchToy,true,.65);
     }
+    public void GrabBall(double x,double y){if(!ToyVisible||ToyKind!="ball"||Settings.Hidden)return;SoundRequested?.Invoke(null);ToyCarried=false;Ball.Grab(x,y);ToyX=Ball.X;ToyY=Ball.Y;Set(Behavior.WatchToy,true,double.PositiveInfinity);}
+    public void MoveBall(double x,double y){if(!ToyVisible||!Ball.Held)return;Ball.Hold(x,y);ToyX=Ball.X;ToyY=Ball.Y;}
+    public void ReleaseBall(){if(!ToyVisible||ToyKind!="ball")return;Ball.Release();Changed?.Invoke();}
     public void CancelCommand(){Cancel();Settings.Companion=false;ReturnStable();}
     // Verification holds an action without inheriting a production movement target.
     public void Preview(Behavior b) { Cancel();Set(b,true,4);preview=true; }
@@ -142,9 +179,10 @@ public sealed class BehaviorEngine
         if(changed&&(ToyVisible||Current==Behavior.HungerMove))CancelCommand();
     }
     private void ReturnStable()
-    { Set(Settings.Sleeping?Behavior.Sleep:Settings.Companion?Behavior.AfkRest:Behavior.Idle,false,double.PositiveInfinity); }
+    { nextMove=clock+Settings.RoamSeconds;Set(Settings.Sleeping?Behavior.Sleep:Settings.Companion?Behavior.AfkRest:Behavior.Idle,false,double.PositiveInfinity); }
     public void SettingsUpdated()
     {
+        nextMove=clock+Settings.RoamSeconds;
         if(Settings.Hidden||Manual||Current==Behavior.Drag)return;
         if(Settings.StaticCompanion){Cancel();ReturnStable();}
         else if(Current==Behavior.Idle)Changed?.Invoke();
@@ -166,17 +204,13 @@ public sealed class BehaviorEngine
         if(avoid&&Math.Abs(cursorX-(X+PixelSize*.5))<PixelSize*.8&&Math.Abs(cursorY-(Y+PixelSize*.5))<PixelSize*.8)return false;
         X=ClampX(X+Math.Sign(distance)*Math.Min(Math.Abs(distance),dt*speed*DpiScale));return false;
     }
+    private bool MoveToyRoute(double dt,double speed){var dx=TargetX-X;var dy=TargetY-Y;var d=Math.Sqrt(dx*dx+dy*dy);FaceRight=dx>0;if(d<2*DpiScale){X=TargetX;Y=TargetY;return true;}var step=Math.Min(d,dt*speed*DpiScale);X=ClampX(X+dx/d*step);Y=ClampY(Y+dy/d*step);return false;}
     public void Tick(double dt,double idleAge,double cursorX=-9999,double cursorY=-9999)
     {
         dt=Math.Clamp(dt,0,.25);clock+=dt;lastInputAge=idleAge;
         if(preview){if(clock>=deadline){preview=false;ReturnStable();}return;}
         Pet.StrengthFood=Math.Max(0,Pet.StrengthFood-dt*2/3600);
         UpdateHunger();
-        var now=utcNow();
-        if(Settings.Hungry&&(Blocked||Settings.Sleeping||Settings.Companion||idleAge>=Settings.AfkSeconds))
-        {
-            if(Settings.HungerNextSoundUtc<=now){Settings.HungerNextSoundUtc=now.AddMinutes(30);DataChanged?.Invoke();}
-        }
         if(Settings.Hidden)return;
         if(Settings.Paused&&!Manual)return;
         // Only the existing five VPet values influence behavior. No death or extreme loss.
@@ -184,6 +218,12 @@ public sealed class BehaviorEngine
         Pet.Strength=Math.Clamp(Pet.Strength+dt*(Settings.Sleeping?.055:-.001),0,100);
         Pet.Health=100;Pet.Mode=Pet.CalMode();
         if(MenuOpen||Current==Behavior.Drag)return;
+        if(Current==Behavior.WatchToy&&ToyKind=="ball"&&idleAge>=Settings.AfkSeconds){Cancel();EnterCompanion();return;}
+        if(ToyVisible&&ToyKind=="ball"&&!ToyCarried&&Current is (Behavior.WatchToy or Behavior.ChaseToy or Behavior.Pickup)){
+            Ball.Tick(dt);ToyX=Ball.X;ToyY=Ball.Y;
+            if(Current==Behavior.WatchToy&&Ball.Thrown&&Ball.Settled&&!Ball.Held){TargetX=ClampX(ToyX-PixelSize*.5);TargetY=ClampY(ToyY-PixelSize*.9);FaceRight=TargetX>X;Set(Behavior.ChaseToy,true,double.PositiveInfinity);return;}
+        }
+        if(Manual&&repeats>0&&clock>=nextRepeat){repeats--;nextRepeat+=2;Changed?.Invoke();}
         if(Settings.Sleeping&&Current==Behavior.Sleep)
         { if(Settings.SleepSound&&clock>=nextBreath){nextBreath=clock+35;SoundRequested?.Invoke("breath");}return; }
         if(!Manual&&!Settings.Sleeping&&Settings.Companion&&idleAge<2)
@@ -197,14 +237,16 @@ public sealed class BehaviorEngine
             return;
         }
         if(Current==Behavior.WatchToy&&clock>=deadline){Set(Behavior.ChaseToy,true,double.PositiveInfinity);return;}
-        if(Current==Behavior.ChaseToy&&Move(dt,Pet.Strength<25?22:75,cursorX,cursorY,false))
-        {Set(Behavior.Pickup,true,.95);return;}
+        if(Current==Behavior.ChaseToy&&(ToyKind=="ball"?MoveToyRoute(dt,Pet.Strength<25?22:75):Move(dt,Pet.Strength<25?22:75,cursorX,cursorY,false)))
+        {if(ToyKind=="ball")SoundRequested?.Invoke("fetch");Set(Behavior.Pickup,true,.95);return;}
         if(Current==Behavior.Pickup&&clock>=deadline)
-        { ToyCarried=true;TargetX=ClampX(HomeX);FaceRight=TargetX>X;Set(Behavior.ReturnToy,true,double.PositiveInfinity);return; }
-        if(Current==Behavior.ReturnToy&&Move(dt,Pet.Strength<25?22:65,cursorX,cursorY,false))
-        { Set(Behavior.Drop,true,.95);return; }
+        { ToyCarried=true;TargetX=ClampX(HomeX);TargetY=ClampY(HomeY);FaceRight=TargetX>X;Set(Behavior.ReturnToy,true,double.PositiveInfinity);return; }
+        if(Current==Behavior.ReturnToy&&(ToyKind=="ball"?MoveToyRoute(dt,Pet.Strength<25?22:65):Move(dt,Pet.Strength<25?22:65,cursorX,cursorY,false)))
+        {if(ToyKind=="ball")SoundRequested?.Invoke("fetch");Set(Behavior.Drop,true,.95);return; }
         if(Current==Behavior.Drop&&clock>=deadline)
-        {ToyCarried=false;ToyX=X+PixelSize*(FaceRight?.78:.22);ToyY=Y+PixelSize*.91;Set(!Settings.Quiet&&Pet.Strength>45&&Pet.Feeling>65?Behavior.Jump:Behavior.Wag,true,1.5);SoundRequested?.Invoke("happy");return;}
+            {ToyCarried=false;ToyX=X+PixelSize*(FaceRight?.78:.22);ToyY=Y+PixelSize*.91;
+                if(ToyKind=="ball"){Ball.Reset(ToyX,ToyY,12*DpiScale,WorkLeft+4*DpiScale,WorkRight-4*DpiScale,WorkTop+4*DpiScale,WorkBottom-4*DpiScale,980*DpiScale);Set(Behavior.WatchToy,true,double.PositiveInfinity);return;}
+                Set(!Settings.Quiet&&Pet.Strength>45&&Pet.Feeling>65?Behavior.Jump:Behavior.Wag,true,4.5);SoundRequested?.Invoke("happy");return;}
         if(Current==Behavior.AfkApproach&&Move(dt,12,cursorX,cursorY,false))
         {FaceRight=TargetX<WorkLeft+(WorkRight-WorkLeft)/2;Set(Behavior.Lie,false,1.1);return;}
         if(Current==Behavior.Welcome&&(Move(dt,18,cursorX,cursorY,true)||clock>=deadline))
@@ -216,23 +258,23 @@ public sealed class BehaviorEngine
         {
             if(Current==Behavior.Lie){ReturnStable();return;}
             if(ToyVisible){ToyVisible=false;ToyCarried=false;}
-            ReturnStable();nextMove=Math.Max(nextMove,clock+20);return;
+            ReturnStable();return;
         }
         if(Blocked||Manual||Settings.Sleeping)return;
         if(Settings.Companion)return;
         if(Current!=Behavior.Idle)return;
-        if(Settings.Hungry)
+        if(Settings.Hungry&&!Settings.Quiet)
         {
             if(!Settings.HungerCenterAttempted)
             {
                 Settings.HungerCenterAttempted=true;
-                Settings.HungerNextSoundUtc=now.AddMinutes(30);DataChanged?.Invoke();
+                DataChanged?.Invoke();
                 CriticalStateChanged?.Invoke(); // Persist before the first movement pixel.
                 TargetX=ClampX((WorkLeft+WorkRight-PixelSize)/2);
                 TargetY=ClampY((WorkTop+WorkBottom-PixelSize)/2);FaceRight=TargetX>X;
                 Set(Behavior.HungerMove,false,double.PositiveInfinity);return;
             }
-            if(now>=Settings.HungerNextSoundUtc)HungerVoice();
+            HungerVoice();
             return;
         }
         if(!Settings.StaticCompanion&&clock>=nextTry)
@@ -250,7 +292,7 @@ public sealed class BehaviorEngine
         }
         if(Settings.AutoMove&&!Settings.Quiet&&clock>=nextMove)
         {
-            nextMove=clock+Settings.RoamSeconds+random.Next(0,61);
+            nextMove=clock+Settings.RoamSeconds;
             var trot=Pet.Strength>45&&random.NextDouble()<.15;
             if(Pet.Likability>45&&random.NextDouble()<.2)
                 TargetX=ClampX(X+Math.Clamp(InteractionX-X,-65*DpiScale,65*DpiScale));
@@ -262,10 +304,10 @@ public sealed class BehaviorEngine
     private void UpdateHunger()
     {
         if(!Settings.Hungry&&Pet.StrengthFood<15)
-        {Settings.Hungry=true;Settings.HungerCenterAttempted=false;Settings.HungerNextSoundUtc=utcNow().AddMinutes(30);DataChanged?.Invoke();}
+        {Settings.Hungry=true;Settings.HungerCenterAttempted=false;Settings.HungerDragCount=0;Settings.HungerAnnounced=false;Settings.HungerNextSoundUtc=DateTimeOffset.MinValue;DataChanged?.Invoke();}
         else if(Settings.Hungry&&Pet.StrengthFood>=30)
         {
-            Settings.Hungry=false;Settings.HungerCenterAttempted=false;Settings.HungerNextSoundUtc=DateTimeOffset.MinValue;
+            Settings.Hungry=false;Settings.HungerCenterAttempted=false;Settings.HungerDragCount=0;Settings.HungerAnnounced=false;Settings.HungerNextSoundUtc=DateTimeOffset.MinValue;
             DataChanged?.Invoke();
             if(Current==Behavior.HungerMove){Cancel();ReturnStable();}
         }
@@ -278,10 +320,7 @@ public sealed class BehaviorEngine
     }
     private void HungerVoice()
     {
-        var now=utcNow();Settings.HungerNextSoundUtc=now.AddMinutes(30);DataChanged?.Invoke();
-        if(now<Settings.HungerLastSoundUtc.AddMinutes(30))return;
-        Settings.HungerLastSoundUtc=now;DataChanged?.Invoke();CriticalStateChanged?.Invoke();
-        if(Settings.HungerSound&&Settings.Sound&&Settings.Volume>0)SoundRequested?.Invoke("click");
+        if(!Settings.HungerAnnounced&&Settings.HungerSound&&Settings.Sound&&!Settings.Quiet&&Settings.Volume>0){Settings.HungerAnnounced=true;CriticalStateChanged?.Invoke();SoundRequested?.Invoke("hunger-two");}
     }
     public string AnimationName=>Current switch
     {
@@ -292,7 +331,7 @@ public sealed class BehaviorEngine
         Behavior.Wag=>"wag",Behavior.Welcome=>"walk",Behavior.Sit=>"sitdown",Behavior.Lie=>"liedown",
         Behavior.Pet=>"pet",Behavior.Eat=>"eat",Behavior.Drink=>"drink",Behavior.Shake=>"shake",
         Behavior.Sleep=>"sleep",Behavior.Expect=>"expect",Behavior.Jump=>Pet.Strength<25?"wag":"jump",
-        Behavior.AfkRest=>"companion",_=>"idle"
+        Behavior.Drag=>"drag",Behavior.Rest or Behavior.AfkRest=>"companion",_=>"idle"
     };
     public string StatusText=>Settings.Hidden?"已隐藏":Settings.Paused?"自动行为已暂停":Current switch
     {

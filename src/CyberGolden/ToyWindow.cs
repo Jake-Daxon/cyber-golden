@@ -11,19 +11,24 @@ public sealed class ToyWindow : Window
     private readonly Canvas drawing=new() {Width=32,Height=32};
     private string kind="";
     private IntPtr handle;
-    public ToyWindow(Action cancel)
+    private bool holding;
+    private (int X,int Y,int Size) placement=(int.MinValue,int.MinValue,0);
+    public ToyWindow(Action cancel,Action<double,double> grab,Action<double,double> move,Action release)
     {
         Width=Height=24;AllowsTransparency=true;Background=Brushes.Transparent;WindowStyle=WindowStyle.None;
         ResizeMode=ResizeMode.NoResize;ShowInTaskbar=false;ShowActivated=false;Focusable=false;Topmost=true;
         Content=new Viewbox {Child=drawing};
         SourceInitialized+=(_,_)=>{handle=new WindowInteropHelper(this).Handle;Native.NoActivate(handle);HwndSource.FromHwnd(handle).AddHook((IntPtr h,int msg,IntPtr wp,IntPtr lp,ref bool done)=>{if(msg==0x21){done=true;return new IntPtr(3);}return IntPtr.Zero;});};
-        MouseLeftButtonDown+=(_,e)=>{cancel();e.Handled=true;};
+        MouseLeftButtonDown+=(_,e)=>{if(kind=="ball"){Native.GetCursorPos(out var p);holding=true;CaptureMouse();grab(p.X,p.Y);}else cancel();e.Handled=true;};
+        MouseMove+=(_,e)=>{if(holding){Native.GetCursorPos(out var p);move(p.X,p.Y);e.Handled=true;}};
+        MouseLeftButtonUp+=(_,e)=>{if(holding){holding=false;release();ReleaseMouseCapture();e.Handled=true;}};
+        LostMouseCapture+=(_,_)=>{if(holding){holding=false;release();}};
     }
     public void Display(string name,double x,double y,double scale)
     {
         if(name!=kind){kind=name;Draw(name);}
         if(!IsVisible)Show();
-        var size=24*scale;Native.SetWindowPos(handle,IntPtr.Zero,(int)(x-size/2),(int)(y-size/2),(int)size,(int)size,0x0014);
+        var size=24*scale;var next=((int)(x-size/2),(int)(y-size/2),(int)size);if(next!=placement){placement=next;Native.SetWindowPos(handle,IntPtr.Zero,next.Item1,next.Item2,next.Item3,next.Item3,0x0014);}
     }
     private void Draw(string name)
     {

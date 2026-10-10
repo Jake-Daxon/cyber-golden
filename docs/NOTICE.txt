@@ -36,3 +36,5 @@ SkiaSharp and native Skia components: MIT/BSD notices included.
 LinePutScript / Localization / Panuon: applicable package licenses included.
 Installer created with Inno Setup, Copyright Jordan Russell / Martijn Laan.
 https://jrsoftware.org/ (LICENSE-Inno.txt).
+
+0.4.1 / 0.2.1本地修改：hunger-two.wav由click.wav两次拼接，中间加入200毫秒静音，用于一次性两声饥饿提醒；仍属Amada44犬声录音的CC BY-SA 3.0派生，保留同一来源和署名。

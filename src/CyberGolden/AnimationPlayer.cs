@@ -49,6 +49,15 @@ public sealed class AnimationPlayer : IDisposable
     public void Play(string name,bool loop,bool reverse=false)
     {
         Stop();
+        // VPet deliberately loads a one-frame PNG as Picture, not PNGAnimation.
+        // Treat the lifted drag sprite as that native graph type instead of falling back.
+        var picture=(Core.Graph!.FindGraph(name,AnimatType.Single,Core.Save!.Mode)??Core.Graph.FindGraph(name,AnimatType.Single,IGameSave.ModeType.Nomal)) as Picture;
+        if(picture?.IsReady==true){
+            active=picture;ActiveName=picture.GraphInfo.Name;picture.IsLoop=false;
+            var held=picture.Run(image);
+            if(image.Source is BitmapSource bitmap){Mask.Set(bitmap);FrameChanged?.Invoke(0);}
+            if(held.Status==TaskStatus.Created)held.Start();return;
+        }
         var graph=Core.Graph!.FindGraph(name,AnimatType.Single,Core.Save!.Mode) as PNGAnimation;
         if(graph?.IsReady!=true)
             graph=Core.Graph.FindGraph("idle",AnimatType.Single,IGameSave.ModeType.Nomal) as PNGAnimation;

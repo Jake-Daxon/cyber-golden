@@ -19,6 +19,8 @@ final class Store {
             s.hungry=j.optBoolean("hungry");s.centerAttempted=j.optBoolean("centerAttempted");s.hidden=j.optBoolean("hidden");s.paused=j.optBoolean("paused");s.sleeping=j.optBoolean("sleeping");
             s.sound=j.optBoolean("sound",true);s.hungerSound=j.optBoolean("hungerSound",true);s.autoMove=j.optBoolean("autoMove",true);s.staticIdle=j.optBoolean("staticIdle",true);
             s.volume=j.optInt("volume",20);s.size=j.optInt("size",144);s.x=(float)j.optDouble("x",-1);s.y=(float)j.optDouble("y",-1);
+            s.behaviorRevision=j.optInt("behaviorRevision");s.hungerDrags=j.optInt("hungerDrags");s.roamSeconds=j.optInt("roamSeconds",180);s.quietMode=j.optBoolean("quietMode");
+            s.hungerAnnounced=j.optBoolean("hungerAnnounced");
             s.savedAt=j.optLong("savedAt");s.nextHungerSound=j.optLong("nextHungerSound");s.lastSound=j.optLong("lastSound");
         }catch(Exception ignored){/* First run or damaged save: safe defaults. */}
         s.restore(System.currentTimeMillis());return s;
@@ -32,6 +34,8 @@ final class Store {
             j.put("hungry",s.hungry).put("centerAttempted",s.centerAttempted).put("hidden",s.hidden).put("paused",s.paused).put("sleeping",s.sleeping);
             j.put("sound",s.sound).put("hungerSound",s.hungerSound).put("autoMove",s.autoMove).put("staticIdle",s.staticIdle);
             j.put("volume",s.volume).put("size",s.size).put("x",s.x).put("y",s.y).put("savedAt",System.currentTimeMillis());
+            j.put("behaviorRevision",s.behaviorRevision).put("hungerDrags",s.hungerDrags).put("roamSeconds",s.roamSeconds).put("quietMode",s.quietMode);
+            j.put("hungerAnnounced",s.hungerAnnounced);
             j.put("nextHungerSound",s.nextHungerSound).put("lastSound",s.lastSound);
             out=file.startWrite();out.write(j.toString().getBytes("UTF-8"));file.finishWrite(out);return true;
         }catch(Exception e){if(out!=null)file.failWrite(out);return false;}

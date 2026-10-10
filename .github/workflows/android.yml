@@ -1,11 +1,6 @@
 name: Android build and runtime validation
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'android/**'
-      - 'tools/*android*'
-      - '.github/workflows/android.yml'
 permissions:
   contents: read
 jobs:

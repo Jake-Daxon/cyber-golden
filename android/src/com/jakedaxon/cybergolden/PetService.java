@@ -14,7 +14,7 @@ public final class PetService extends Service {
     public static PetService instance;
     PetState state;Store store;PetAssets assets;
     private WindowManager windows;private WindowManager.LayoutParams params,bubbleParams,toyParams;
-    private PetView pet;private TextView bubble;private View toy;private PopupWindow menu;
+    private PetView pet;private TextView bubble;private BallView toy;private PopupWindow menu;
     private final Handler handler=new Handler(Looper.getMainLooper());
     private float density=1,maxX,maxY,downX,downY,originX,originY;
     private long lastTick,lastSave;private boolean screenOn=true,added,bubbleAdded,toyAdded;
@@ -32,20 +32,24 @@ public final class PetService extends Service {
         catch(Exception e){android.util.Log.e("CyberGolden","Foreground service failed",e);stopSelf();return;}
         pet=new PetView(this,state,assets);bubble=new TextView(this);bubble.setText("我饿了");bubble.setTextSize(14);bubble.setTextColor(Color.rgb(71,50,36));bubble.setGravity(Gravity.CENTER);
         android.graphics.drawable.GradientDrawable bg=new android.graphics.drawable.GradientDrawable();bg.setColor(Color.rgb(255,247,237));bg.setCornerRadius(16*density);bg.setStroke((int)density,Color.rgb(216,180,142));bubble.setBackground(bg);
-        toy=new View(this){private final Paint p=new Paint(3);@Override protected void onDraw(Canvas c){p.setColor(state.toy.equals("ball")?Color.rgb(152,185,65):Color.rgb(194,136,98));if(state.toy.equals("ball"))c.drawCircle(getWidth()/2f,getHeight()/2f,getWidth()*.44f,p);else c.drawRoundRect(0,0,getWidth(),getHeight(),getWidth()*.3f,getHeight()*.3f,p);}};
+        toy=new BallView(this,state);toy.touch=new BallView.Touch(){
+            public void grab(float x,float y){assets.stop();state.grabBall((x-bounds.left)/density,(y-bounds.top)/density,System.currentTimeMillis());render();}
+            public void move(float x,float y){state.holdBall((x-bounds.left)/density,(y-bounds.top)/density);updateCompanions();}
+            public void release(){state.releaseBall();render();}
+        };
         int type=WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         int flags=WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
         params=new WindowManager.LayoutParams((int)(state.size*density),(int)(state.size*density),type,flags,PixelFormat.TRANSLUCENT);params.gravity=Gravity.TOP|Gravity.LEFT;
         bubbleParams=new WindowManager.LayoutParams((int)(86*density),(int)(36*density),type,flags|WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,PixelFormat.TRANSLUCENT);bubbleParams.gravity=params.gravity;
-        toyParams=new WindowManager.LayoutParams((int)(24*density),(int)(24*density),type,flags|WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,PixelFormat.TRANSLUCENT);toyParams.gravity=params.gravity;
+        toyParams=new WindowManager.LayoutParams((int)(48*density),(int)(48*density),type,flags,PixelFormat.TRANSLUCENT);toyParams.gravity=params.gravity;
         // Android 12+ blocks touches behind untrusted opaque overlays, including
         // NOT_TOUCHABLE windows. Keep combined companion opacity below 0.8.
-        bubbleParams.alpha=.70f;toyParams.alpha=.25f;
+        bubbleParams.alpha=.70f;toyParams.alpha=1;
         pet.setOnApplyWindowInsetsListener((v,insets)->{handler.post(this::workspace);return insets;});
         pet.touch=new PetView.Touch(){
-            public void down(float x,float y){downX=x;downY=y;originX=state.x;originY=state.y;state.cancel();state.stable();assets.stop();}
-            public void move(float x,float y){if(!state.dragging)state.dragStart(System.currentTimeMillis());state.x=originX+(x-downX)/density;state.y=originY+(y-downY)/density;clamp();render();}
-            public void up(boolean moved){if(moved){state.dragEnd(System.currentTimeMillis());persist();render();}else command("pet");}
+            public void down(float x,float y){downX=x;downY=y;originX=state.x;originY=state.y;}
+            public void move(float x,float y){if(!state.dragging){state.dragStart(System.currentTimeMillis());originX=(downX-bounds.left)/density-state.size*.5f;originY=(downY-bounds.top)/density-state.size*.55f;assets.stop();persist();}state.x=originX+(x-downX)/density;state.y=originY+(y-downY)/density;clamp();render();}
+            public void up(boolean moved,float x,float y){if(moved&&state.dragging){state.targetX=maxX/2;state.targetY=maxY/2;state.dragEnd(System.currentTimeMillis());persist();render();}else if(!moved)tap(x,y);}
             public void menu(){showMenu();}
         };
         workspace();
@@ -56,15 +60,15 @@ public final class PetService extends Service {
     private final Runnable ticker=new Runnable(){public void run(){
         if(instance!=PetService.this||pet==null)return;
         long monotonic=SystemClock.elapsedRealtime(),now=System.currentTimeMillis();double dt=(monotonic-lastTick)/1000.0;lastTick=monotonic;
-        oldHungry=state.hungry;oldAttempt=state.centerAttempted;String before=state.action;
+        oldHungry=state.hungry;oldAttempt=state.centerAttempted;boolean oldAnnouncement=state.hungerAnnounced;String before=state.action;
         if(!screenOn)state.quiet=true;
         state.tick(now,dt,maxX,maxY);
         // Record this hunger attempt BEFORE rendering the first moving pixel.
-        if(oldHungry!=state.hungry||oldAttempt!=state.centerAttempted||now-lastSave>=30000)persist();
+        if(oldHungry!=state.hungry||oldAttempt!=state.centerAttempted||oldAnnouncement!=state.hungerAnnounced||now-lastSave>=30000)persist();
         if(state.hidden||!screenOn||!state.sound)assets.stop();
-        if(state.pendingSound!=null){String sound=state.pendingSound;state.pendingSound=null;if(!state.hidden&&screenOn)assets.play(sound,state.volume);persist();}
+        if(state.pendingSound!=null){String sound=state.pendingSound;state.pendingSound=null;if(!state.hidden&&screenOn)assets.play(sound,state.volume);}
         if(!before.equals(state.action)||state.moving()||!state.action.equals("idle"))render();else updateCompanions();
-        handler.postDelayed(this,(!state.hidden&&screenOn&&!state.action.equals("idle")&&!state.paused)?33:1000);
+        handler.postDelayed(this,(!state.hidden&&screenOn&&(!state.action.equals("idle")||state.toyVisible)&&(!state.paused||state.manual))?33:1000);
     }};
     private Notification notification(){
         PendingIntent open=PendingIntent.getActivity(this,1,new Intent(this,MainActivity.class),PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
@@ -91,9 +95,10 @@ public final class PetService extends Service {
         }
         persist();render();
     }
+    public void tap(float x,float y){String chosen=state.clickChoice(x,y);if(chosen==null)return;if(chosen.equals("ball")||chosen.equals("plush"))fetch(chosen);else command(chosen);}
     public void fetch(String kind){dismissMenu();assets.stop();state.startToy(kind,maxX,maxY,System.currentTimeMillis());persist();render();}
     public void hide(boolean value){dismissMenu();state.setHidden(value,System.currentTimeMillis());assets.stop();persist();render();((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(NOTICE,notification());}
-    public void refreshSettings(){state.normalize();state.cancel();state.stable();assets.stop();workspace();persist();render();}
+    public void refreshSettings(){state.normalize();state.cancel();state.stable();state.nextRoam=System.currentTimeMillis()+state.roamSeconds*1000L;assets.stop();workspace();persist();render();}
     private void clamp(){state.x=(float)PetState.clamp(state.x,0,maxX);state.y=(float)PetState.clamp(state.y,0,maxY);state.targetX=(float)PetState.clamp(state.targetX,0,maxX);state.targetY=(float)PetState.clamp(state.targetY,0,maxY);}
     private void workspace(){
         if(params==null)return;
@@ -123,7 +128,13 @@ public final class PetService extends Service {
                 bubbleParams.y=(int)PetState.clamp(params.y-36*density,0,Math.max(0,bounds.height()-bubbleParams.height));
                 if(!bubbleAdded){windows.addView(bubble,bubbleParams);bubbleAdded=true;}else windows.updateViewLayout(bubble,bubbleParams);
             }else if(bubbleAdded){windows.removeView(bubble);bubbleAdded=false;}
-            if(added&&state.toyVisible&&!state.toyCarried){toyParams.x=(int)((state.toyX+state.size*.7)*density);toyParams.y=(int)((state.toyY+state.size*.84)*density);if(!toyAdded){windows.addView(toy,toyParams);toyAdded=true;}else windows.updateViewLayout(toy,toyParams);toy.invalidate();}
+            if(added&&state.toyVisible&&(!state.toyCarried||state.toy.equals("ball"))){
+                boolean ball=state.toy.equals("ball");toyParams.flags=WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|(ball?0:WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);toyParams.alpha=ball?1:.25f;
+                float bx=ball?state.toyX:state.toyX+state.size*.7f,by=ball?state.toyY:state.toyY+state.size*.84f;
+                if(ball&&state.toyCarried){bx=state.x+state.size*(state.faceRight?.82f:.18f);by=state.y+state.size*.4f;}
+                toyParams.x=(int)(bx*density-toyParams.width/2);
+                toyParams.y=(int)(by*density-toyParams.height/2);
+                if(!toyAdded){windows.addView(toy,toyParams);toyAdded=true;}else windows.updateViewLayout(toy,toyParams);toy.invalidate();}
             else if(toyAdded){windows.removeView(toy);toyAdded=false;}
         }catch(Exception e){android.util.Log.w("CyberGolden","Companion overlay unavailable",e);}
     }

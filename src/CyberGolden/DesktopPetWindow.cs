@@ -44,11 +44,12 @@ public sealed class DesktopPetWindow : Window
     private Native.PointI down;
     private Native.RectI dragStart;
     private int frameIndex;
+    private long pressEpoch;
     private (int X,int Y,int Size) lastPlacement=(int.MinValue,int.MinValue,0);
     private StatusWindow? status;
     private SettingsWindow? settingsWindow;
     private ContextMenu? currentMenu;
-    private bool DisplayFlip=>Engine.FaceRight&&Engine.Current is not (Behavior.Idle or Behavior.AfkRest);
+    private bool DisplayFlip=>Engine.FaceRight&&Engine.Current is not (Behavior.Idle or Behavior.AfkRest or Behavior.Drag);
     public DesktopPetWindow(StateStore store,Settings settings,GameSave pet,bool test=false)
     {
         Store=store;Settings=settings;Pet=pet;Title="赛博金毛";
@@ -66,7 +67,7 @@ public sealed class DesktopPetWindow : Window
         Engine.Changed+=OnBehaviorChanged;
         Player.FrameChanged+=index=>{frameIndex=index;regionDirty=true;};
         ReadMouths();
-        toy=new ToyWindow(()=>Engine.CancelCommand());
+        toy=new ToyWindow(()=>Engine.CancelCommand(),Engine.GrabBall,Engine.MoveBall,Engine.ReleaseBall);
         tray=new Forms.NotifyIcon {Text="赛博金毛",Icon=new System.Drawing.Icon(Path.Combine(AppContext.BaseDirectory,"pet.ico")),Visible=!test};
         tray.DoubleClick+=(_,_)=>Dispatcher.Invoke(()=>{if(Settings.Hidden)Engine.ToggleHidden();else ShowStatus();});
         MakeTray();
@@ -175,7 +176,7 @@ public sealed class DesktopPetWindow : Window
         else
         {
             if(!IsVisible){Show();Opacity=1;}
-            if(Engine.Current is Behavior.Idle or Behavior.AfkRest)
+            if(Engine.Current is Behavior.Idle or Behavior.AfkRest or Behavior.WatchToy)
             {Player.ShowPose(Settings.IdlePose);}
             else if(Settings.Paused&&!Engine.Manual)
             {Player.Play(Settings.Sleeping?"sleep":"idle",false);}
@@ -243,14 +244,14 @@ public sealed class DesktopPetWindow : Window
     private void Down(object sender,MouseButtonEventArgs e)
     {
         if(!Hit(e.GetPosition(this)))return;
-        Engine.OpenMenu(false);Engine.CancelCommand();Native.GetCursorPos(out down);Native.GetWindowRect(Handle,out dragStart);
+        Native.GetCursorPos(out down);Native.GetWindowRect(Handle,out dragStart);pressEpoch=Engine.Epoch;
         pressing=true;CaptureMouse();e.Handled=true;
     }
     private void Move(object sender,MouseEventArgs e)
     {
         if(!pressing||e.LeftButton!=MouseButtonState.Pressed)return;
         Native.GetCursorPos(out var cursor);
-        if(!dragging&&Math.Abs(cursor.X-down.X)+Math.Abs(cursor.Y-down.Y)>6*Engine.DpiScale){dragging=true;Engine.BeginDrag();}
+        if(!dragging&&Math.Abs(cursor.X-down.X)+Math.Abs(cursor.Y-down.Y)>6*Engine.DpiScale){dragging=true;Engine.BeginDrag();dragStart.Left=down.X-(int)(Engine.PixelSize*.5);dragStart.Top=down.Y-(int)(Engine.PixelSize*.55);}
         if(dragging)
         {
             Engine.X=dragStart.Left+cursor.X-down.X;Engine.Y=dragStart.Top+cursor.Y-down.Y;
@@ -264,8 +265,7 @@ public sealed class DesktopPetWindow : Window
         else
         {
             Native.GetCursorPos(out var cursor);
-            if(e.GetPosition(this).Y/ActualHeight<.57)Engine.Command(Behavior.Pet,cursor.X);
-            else ShowStatus();
+            if(Engine.Epoch==pressEpoch){var p=e.GetPosition(this);Engine.Click(p.X/ActualWidth,p.Y/ActualHeight,cursor.X);}
         }
         ReleaseMouseCapture();e.Handled=true;
     }
@@ -284,9 +284,8 @@ public sealed class DesktopPetWindow : Window
         {var item=new MenuItem {Header=label};item.Click+=(_,_)=>{Engine.OpenMenu(false);Engine.Command(action);};extra.Items.Add(item);}
         menu.Items.Add(extra);
         Add(Settings.Sleeping?"叫醒":"睡觉",()=>Engine.Command(Settings.Sleeping?Behavior.Idle:Behavior.Sleep));
-        Add("取消当前动作",Engine.CancelCommand);menu.Items.Add(new Separator());
+        menu.Items.Add(new Separator());
         Add("状态",ShowStatus);Add("设置 / 改名 / 大小 / 声音",ShowSettings);
-        Add(Settings.StaticCompanion?"关闭静止陪伴":"开启静止陪伴",()=>{Settings.StaticCompanion=!Settings.StaticCompanion;ApplySettings();});
         Add(Settings.Paused?"恢复自动行为":"暂停自动行为",Engine.TogglePause);
         Add("隐藏  "+Settings.Hotkey,Engine.ToggleHidden);Add("退出",Close);
         menu.Closed+=(_,_)=>{if(ReferenceEquals(currentMenu,menu))currentMenu=null;Engine.OpenMenu(false);};

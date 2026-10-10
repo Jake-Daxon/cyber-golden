@@ -1,4 +1,4 @@
-#define AppVersion "0.3.0"
+#define AppVersion "0.4.1-preview"
 #define AppName "赛博金毛"
 [Setup]
 AppId={{86774E89-51C7-4E0B-B1CE-60297E5E4403}
@@ -26,7 +26,7 @@ Name: "chinesesimplified"; MessagesFile: "ChineseSimplified.isl"
 [Tasks]
 Name: "desktopicon"; Description: "创建桌面快捷方式"; Flags: unchecked
 [Files]
-Source: "..\dist\CyberGolden-0.3.0-win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\dist\CyberGolden-0.4.1-preview-win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\CyberGolden.exe"
 Name: "{group}\卸载{#AppName}"; Filename: "{uninstallexe}"

@@ -28,7 +28,10 @@ public sealed class Settings
     public bool Sleeping { get; set; }
     public bool Companion { get; set; }
     public bool StaticCompanion { get; set; } = true;
-    public string IdlePose { get; set; } = "FrontSit";
+    public string IdlePose { get; set; } = "Lie";
+    public int BehaviorRevision { get; set; }
+    public int HungerDragCount { get; set; }
+    public bool HungerAnnounced { get; set; }
     public bool Hungry { get; set; }
     public bool HungerCenterAttempted { get; set; }
     public bool HungerSound { get; set; } = true;
@@ -44,8 +47,11 @@ public sealed class Settings
         X = double.IsFinite(X) ? X : -1; Y = double.IsFinite(Y) ? Y : -1;
         AfkSeconds = Math.Clamp(AfkSeconds,30,3600);
         Hotkey ??= "Ctrl+Alt+D";
-        if(IdlePose is not ("FrontSit" or "Stand" or "Lie"))IdlePose="FrontSit";
-        RoamSeconds=Math.Clamp(RoamSeconds,60,1800);
+        if(BehaviorRevision<4){if(IdlePose=="FrontSit")IdlePose="Lie";BehaviorRevision=4;}
+        StaticCompanion=true;
+        if(IdlePose is not ("FrontSit" or "Stand" or "Lie"))IdlePose="Lie";
+        RoamSeconds=Math.Clamp(RoamSeconds,5,1000);
+        HungerDragCount=Math.Max(0,HungerDragCount);
         LastFeedRequest??="";
         if(LastFeedRequest.Length>64)LastFeedRequest="";
         if(HungerNextSoundUtc>DateTimeOffset.UtcNow.AddMinutes(30))HungerNextSoundUtc=DateTimeOffset.UtcNow.AddMinutes(30);

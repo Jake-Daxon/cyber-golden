@@ -18,5 +18,11 @@
   "breath": {
     "seconds": 2.5,
     "peak": 0.029755422752789546
+  },
+  "hunger-two": {
+    "seconds": 1.24,
+    "derivedFrom": "click.wav x2 + 200ms silence",
+    "license": "CC BY-SA 3.0",
+    "author": "Amada44"
   }
 }

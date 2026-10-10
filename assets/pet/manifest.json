@@ -670,10 +670,22 @@
         ]
       ],
       "quality": "generated six-keyframe sequence; visual review required"
+    },
+    "drag": {
+      "directory": "nomal/raised_static/drag",
+      "frames": 1,
+      "frameMs": 1000,
+      "graph": "Raised_Static",
+      "mouth": [
+        [
+          0.5,
+          0.3
+        ]
+      ],
+      "quality": "single suspended pose; right forepaw naturally covering lower abdomen; imagegen"
     }
   },
   "fallbacks": {
-    "drag": "idle",
     "welcome": "wag",
     "drop": "pickup (reverse)",
     "sit": "expect",
@@ -703,5 +715,13 @@
       "sourceFrame": 0,
       "loop": false
     }
+  },
+  "audioDurationsMs": {
+    "breath": 2500,
+    "click": 520,
+    "drink": 1400,
+    "eat": 1600,
+    "happy": 1200,
+    "hunger-two": 1240
   }
 }

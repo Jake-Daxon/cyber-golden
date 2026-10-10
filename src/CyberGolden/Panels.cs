@@ -44,7 +44,7 @@ public sealed class SettingsWindow : Window
     private readonly TextBlock shortcutStatus=new() {TextWrapping=TextWrapping.Wrap,FontSize=12};
     public SettingsWindow(DesktopPetWindow owner)
     {
-        pet=owner;Title="赛博金毛 · 设置";Width=420;Height=630;MinWidth=380;MinHeight=480;
+        pet=owner;Title="赛博金毛 · 设置（0.4.1 体验版）";Width=420;Height=630;MinWidth=380;MinHeight=480;
         FontFamily=new FontFamily("Microsoft YaHei UI");ShowInTaskbar=false;ShowActivated=false;
         // Explicitly opened settings can accept text focus on click; animation/menu never activates.
         var root=new StackPanel {Margin=new Thickness(24)};
@@ -52,13 +52,11 @@ public sealed class SettingsWindow : Window
         root.Children.Add(new TextBlock {Text="名字",Margin=new Thickness(0,0,0,4)});
         var name=new TextBox {Text=pet.Settings.Name,MaxLength=24,Padding=new Thickness(8),Margin=new Thickness(0,0,0,12)};
         name.TextChanged+=(_,_)=>{pet.Settings.Name=name.Text;pet.Dirty();};root.Children.Add(name);
-        var still=new CheckBox {Content="静止陪伴（默认开启）",IsChecked=pet.Settings.StaticCompanion,Margin=new Thickness(0,4,0,6)};
-        still.Checked+=(_,_)=>{pet.Settings.StaticCompanion=true;pet.ApplySettings();};still.Unchecked+=(_,_)=>{pet.Settings.StaticCompanion=false;pet.ApplySettings();};root.Children.Add(still);
         root.Children.Add(new TextBlock {Text="待机姿势",Margin=new Thickness(0,2,0,4)});
         var pose=new ComboBox {Margin=new Thickness(0,0,0,6),Padding=new Thickness(6)};
         pose.Items.Add(new ComboBoxItem {Content="正面静坐 · 双爪落地（握手形象）",Tag="FrontSit"});
         pose.Items.Add(new ComboBoxItem {Content="自然四足站立",Tag="Stand"});
-        pose.Items.Add(new ComboBoxItem {Content="安静趴下",Tag="Lie"});
+        pose.Items.Add(new ComboBoxItem {Content="安静趴下（默认）",Tag="Lie"});
         pose.SelectedIndex=pet.Settings.IdlePose=="Stand"?1:pet.Settings.IdlePose=="Lie"?2:0;
         pose.SelectionChanged+=(_,_)=>{if(pose.SelectedItem is ComboBoxItem item){pet.Settings.IdlePose=(string)item.Tag;pet.ApplySettings();}};root.Children.Add(pose);
         root.Children.Add(new TextBlock {Text="待机不循环；漫游按独立 CD 开启。互动后回所选姿势，饥饿提醒除外。",FontSize=12,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,12)});
@@ -72,20 +70,18 @@ public sealed class SettingsWindow : Window
         }
         Check("置顶显示",pet.Settings.Topmost,v=>pet.Settings.Topmost=v);
         Check("允许自主散步",pet.Settings.AutoMove,v=>pet.Settings.AutoMove=v);
-        Check("安静模式（减少移动和兴奋）",pet.Settings.Quiet,v=>pet.Settings.Quiet=v);
+        Check("安静模式",pet.Settings.Quiet,v=>pet.Settings.Quiet=v);
+        root.Children.Add(new TextBlock {Text="安静模式小狗不会叫，不会自由漫步",FontSize=12,Foreground=Brushes.Gray,Margin=new Thickness(0,0,0,8)});
         Check("播放互动声音",pet.Settings.Sound,v=>pet.Settings.Sound=v);
         root.Children.Add(new TextBlock {Text="音量（不修改系统音量）",Margin=new Thickness(0,8,0,0)});
         var volume=new Slider {Minimum=0,Maximum=100,Value=pet.Settings.Volume,Margin=new Thickness(0,6,0,10)};
         volume.ValueChanged+=(_,_)=>{pet.Settings.Volume=volume.Value;pet.Audio.Update();pet.Dirty();};root.Children.Add(volume);
         Check("睡眠轻呼吸声",pet.Settings.SleepSound,v=>pet.Settings.SleepSound=v);
-        Check("饥饿提醒轻叫（间隔至少 30 分钟）",pet.Settings.HungerSound,v=>pet.Settings.HungerSound=v);
-        root.Children.Add(new TextBlock {Text="自主漫游 CD（秒，60～1800）",Margin=new Thickness(0,10,0,4)});
+        Check("饥饿提醒（每轮轻叫两声，可关闭）",pet.Settings.HungerSound,v=>pet.Settings.HungerSound=v);
+        root.Children.Add(new TextBlock {Text="自主漫游 CD（秒，5～1000）",Margin=new Thickness(0,10,0,4)});
         var roam=new TextBox {Text=pet.Settings.RoamSeconds.ToString(),Padding=new Thickness(6),MaxLength=4};
         roam.LostFocus+=(_,_)=>{if(int.TryParse(roam.Text,out var value)){pet.Settings.RoamSeconds=value;pet.ApplySettings();}roam.Text=pet.Settings.RoamSeconds.ToString();};root.Children.Add(roam);
         Check("登录 Windows 时启动（默认关闭）",pet.Settings.Startup,pet.SetStartup);
-        root.Children.Add(new TextBlock {Text="安静陪伴等待时间（秒）",Margin=new Thickness(0,10,0,4)});
-        var afk=new TextBox {Text=pet.Settings.AfkSeconds.ToString(),Padding=new Thickness(6),MaxLength=4};
-        afk.LostFocus+=(_,_)=>{if(int.TryParse(afk.Text,out var seconds)){pet.Settings.AfkSeconds=seconds;pet.ApplySettings();}afk.Text=pet.Settings.AfkSeconds.ToString();};root.Children.Add(afk);
         root.Children.Add(new TextBlock {Text="隐藏 / 恢复快捷键",Margin=new Thickness(0,12,0,4)});
         var hotkey=new TextBox {Text=pet.Settings.Hotkey,Padding=new Thickness(6),MaxLength=32};root.Children.Add(hotkey);
         var register=new Button {Content="应用快捷键",Padding=new Thickness(10,6,10,6),Margin=new Thickness(0,6,0,6)};
@@ -94,6 +90,7 @@ public sealed class SettingsWindow : Window
         root.Children.Add(new TextBlock {Text="所有数据保存在当前用户应用数据目录。\nVPet Core · Apache-2.0。声音署名及修改见 NOTICE。",FontSize=12,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,16,0,14)});
         var close=new Button {Content="保存并关闭",Padding=new Thickness(12,8,12,8)};
         close.Click+=(_,_)=>{pet.ApplySettings();pet.Save();Close();};root.Children.Add(close);
+        root.Children.Add(new TextBlock {Text="联系创作者可定制萌宠",FontSize=11,Foreground=Brushes.Gray,TextAlignment=TextAlignment.Center,Margin=new Thickness(0,16,0,0)});
         Content=new ScrollViewer {Content=root,VerticalScrollBarVisibility=ScrollBarVisibility.Auto};
         Closing+=(_,_)=>{pet.ApplySettings();pet.Save();};
     }

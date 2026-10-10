@@ -157,3 +157,20 @@ for idx,(name,seq) in enumerate(frames.items()):
     x=(idx%5)*160;y=(idx//5)*160;sheet.paste(tile.convert('RGB'),(x,y));d.text((x+8,y+6),name,fill=(38,52,68))
 sheet.save(ROOT/'previews/contact-sheet-160.png')
 print(f'Prepared {sum(len(v) for v in frames.values())} RGBA frames / {len(frames)} actions')
+
+# Optional owner-approved suspended pose, normalized like the existing runtime frames.
+if (ROOT/'assets/drag-lift-reference.png').exists():
+    import wave
+    lifted=Image.open(ROOT/'assets/drag-lift-reference.png').convert('RGBA')
+    lifted=lifted.crop(lifted.getchannel('A').point(lambda v:255 if v>24 else 0).getbbox())
+    lifted.thumbnail((410,440),Image.Resampling.LANCZOS)
+    canvas=Image.new('RGBA',(512,512));canvas.alpha_composite(lifted,((512-lifted.width)//2,36))
+    directory=OUT/'nomal/raised_static/drag';directory.mkdir(parents=True,exist_ok=True)
+    canvas.save(directory/'000_1000.png')
+    (directory/'info.lps').write_text('pnganimation#drag:|graph#Raised_Static:|mode#Nomal:|animat#Single:|loop#false:|\n','utf-8')
+    manifest['actions']['drag']={'directory':'nomal/raised_static/drag','frames':1,'frameMs':1000,'graph':'Raised_Static','mouth':[[.5,.3]],'quality':'single lifted pose; relaxed right forepaw'}
+    manifest['fallbacks'].pop('drag',None)
+    manifest['audioDurationsMs']={}
+    for f in (ROOT/'assets/audio').glob('*.wav'):
+        with wave.open(str(f),'rb') as w:manifest['audioDurationsMs'][f.stem]=round(w.getnframes()/w.getframerate()*1000)
+    (OUT/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),'utf-8')

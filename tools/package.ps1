@@ -4,7 +4,7 @@ $projectRoot=Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $projectRoot
 $sdk=Join-Path $PSScriptRoot 'dotnet/dotnet.exe'
 if(-not(Test-Path -LiteralPath $sdk)){$sdk=(Get-Command dotnet -ErrorAction Stop).Source}
-$publishDir=Join-Path $projectRoot 'dist/CyberGolden-0.3.0-win-x64'
+$publishDir=Join-Path $projectRoot 'dist/CyberGolden-0.4.1-preview-win-x64'
 if(-not [IO.Path]::GetFullPath($publishDir).StartsWith([IO.Path]::GetFullPath($projectRoot).TrimEnd('\')+'\',[StringComparison]::OrdinalIgnoreCase)){throw '发布路径超出项目'}
 if(-not $SkipBuild){
   & $sdk publish src/CyberGolden/CyberGolden.csproj -c Release -r win-x64 --self-contained true -o $publishDir -p:PublishSingleFile=false -p:PublishTrimmed=false -v minimal
@@ -37,13 +37,13 @@ $installerStage=Join-Path $PSScriptRoot ('installer-stage-'+[Guid]::NewGuid().To
 New-Item -ItemType Directory -Force -Path $installerStage | Out-Null
 & $compiler /Qp ('/O'+$installerStage) (Join-Path $PSScriptRoot 'CyberGolden.iss')
 if($LASTEXITCODE -ne 0){throw '安装包编译失败；临时输出保留用于诊断'}
-$stageSetup=Join-Path $installerStage 'CyberGolden-Setup-0.3.0-x64.exe'
-$finalSetup=Join-Path $projectRoot 'dist/CyberGolden-Setup-0.3.0-x64.exe'
+$stageSetup=Join-Path $installerStage 'CyberGolden-Setup-0.4.1-preview-x64.exe'
+$finalSetup=Join-Path $projectRoot 'dist/CyberGolden-Setup-0.4.1-preview-x64.exe'
 $copied=$false
 for($attempt=0;$attempt -lt 5 -and -not $copied;$attempt++){
   try {Copy-Item -LiteralPath $stageSetup -Destination $finalSetup -Force;$copied=$true}
   catch {if($attempt -eq 4){throw};Start-Sleep -Seconds 1}
 }
-$archive=Join-Path $projectRoot 'dist/CyberGolden-Portable-0.3.0-x64.zip'
+$archive=Join-Path $projectRoot 'dist/CyberGolden-Portable-0.4.1-preview-x64.zip'
 Compress-Archive -Path (Join-Path $publishDir '*') -DestinationPath $archive -Force
-Get-FileHash dist/CyberGolden-Setup-0.3.0-x64.exe,$archive -Algorithm SHA256 | ForEach-Object { $_.Hash.ToLowerInvariant()+'  '+(Split-Path -Leaf $_.Path) } | Set-Content -Encoding utf8 dist/SHA256SUMS.txt
+Get-FileHash dist/CyberGolden-Setup-0.4.1-preview-x64.exe,$archive -Algorithm SHA256 | ForEach-Object { $_.Hash.ToLowerInvariant()+'  '+(Split-Path -Leaf $_.Path) } | Set-Content -Encoding utf8 dist/SHA256SUMS.txt
