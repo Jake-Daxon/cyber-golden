@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+ <PropertyGroup><OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework><UseWPF>true</UseWPF><Nullable>enable</Nullable><ImplicitUsings>disable</ImplicitUsings></PropertyGroup>
+ <ItemGroup><ProjectReference Include="../../upstream/VPet-main/VPet-Simulator.Core/VPet-Simulator.Core.csproj" /></ItemGroup>
+</Project>

@@ -1,0 +1,128 @@
+[
+  {
+    "scenario": "sleep",
+    "passed": true,
+    "probe": {
+      "prepared": true,
+      "visible": true,
+      "hidden": false,
+      "paused": false,
+      "sleeping": true,
+      "staticCompanion": true,
+      "idlePose": "FrontSit",
+      "hungry": false,
+      "centerAttempted": false,
+      "bubble": false,
+      "graph": "sleep",
+      "behavior": "Sleep"
+    }
+  },
+  {
+    "scenario": "hidden",
+    "passed": true,
+    "probe": {
+      "prepared": true,
+      "visible": false,
+      "hidden": true,
+      "paused": false,
+      "sleeping": false,
+      "staticCompanion": true,
+      "idlePose": "FrontSit",
+      "hungry": false,
+      "centerAttempted": false,
+      "bubble": false,
+      "graph": "",
+      "behavior": "Idle"
+    }
+  },
+  {
+    "scenario": "paused",
+    "passed": true,
+    "probe": {
+      "prepared": true,
+      "visible": true,
+      "hidden": false,
+      "paused": true,
+      "sleeping": false,
+      "staticCompanion": true,
+      "idlePose": "FrontSit",
+      "hungry": false,
+      "centerAttempted": false,
+      "bubble": false,
+      "graph": "pose-FrontSit",
+      "behavior": "Idle"
+    }
+  },
+  {
+    "scenario": "transient",
+    "passed": true,
+    "probe": {
+      "prepared": true,
+      "visible": true,
+      "hidden": false,
+      "paused": false,
+      "sleeping": false,
+      "staticCompanion": true,
+      "idlePose": "FrontSit",
+      "hungry": false,
+      "centerAttempted": false,
+      "bubble": false,
+      "graph": "pose-FrontSit",
+      "behavior": "Idle"
+    }
+  },
+  {
+    "scenario": "pose",
+    "passed": true,
+    "probe": {
+      "prepared": true,
+      "visible": true,
+      "hidden": false,
+      "paused": false,
+      "sleeping": false,
+      "staticCompanion": true,
+      "idlePose": "Lie",
+      "hungry": false,
+      "centerAttempted": false,
+      "bubble": false,
+      "graph": "pose-Lie",
+      "behavior": "Idle"
+    }
+  },
+  {
+    "scenario": "hungry",
+    "passed": true,
+    "probe": {
+      "prepared": true,
+      "visible": true,
+      "hidden": false,
+      "paused": false,
+      "sleeping": false,
+      "staticCompanion": true,
+      "idlePose": "FrontSit",
+      "hungry": true,
+      "centerAttempted": true,
+      "bubble": true,
+      "graph": "pose-FrontSit",
+      "behavior": "Idle"
+    }
+  },
+  {
+    "scenario": "hungry-hidden",
+    "passed": true,
+    "probe": {
+      "prepared": true,
+      "visible": false,
+      "hidden": true,
+      "paused": false,
+      "sleeping": false,
+      "staticCompanion": true,
+      "idlePose": "FrontSit",
+      "hungry": true,
+      "centerAttempted": true,
+      "bubble": false,
+      "graph": "",
+      "behavior": "Idle"
+    }
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "checks": {
+    "twenty_actions": true,
+    "120_RGBA_frames": true,
+    "three_non_looping_static_poses": true,
+    "all_frames_512_and_transparent": true,
+    "transparent_canvas_margins": true,
+    "120_distinct_animation_frame_files": true,
+    "five_valid_local_PCM_audio": true,
+    "no_photos_reference_atlases_save_or_steam": true,
+    "no_developer_debug_symbols": true,
+    "runtime_and_native_libraries": true,
+    "apphost_MZ": true,
+    "installer_MZ": true,
+    "portable_contains_same_entity_files": true,
+    "portable_entity_hashes_match_publish": true
+  },
+  "passed": true,
+  "pngs": 120,
+  "publication_files": 653,
+  "total_uncompressed_bytes": 216265647
+}

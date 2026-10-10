@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF><UseWindowsForms>true</UseWindowsForms><Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings><Version>0.3.0</Version><PlatformTarget>x64</PlatformTarget>
+    <ApplicationManifest>app.manifest</ApplicationManifest><CETCompat>false</CETCompat>
+    <ApplicationIcon>../../assets/pet.ico</ApplicationIcon>
+    <PublishTrimmed>false</PublishTrimmed><PublishSingleFile>false</PublishSingleFile>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <ItemGroup><ProjectReference Include="../VPet-Simulator.Core/VPet-Simulator.Core.csproj" /></ItemGroup>
+  <ItemGroup>
+    <Content Include="../../assets/pet/**" Link="assets/pet/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../assets/audio/**" Link="assets/audio/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../assets/pet.ico" Link="pet.ico" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../docs/LICENSE*.txt;../../docs/NOTICE.txt;../../docs/使用说明.md" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

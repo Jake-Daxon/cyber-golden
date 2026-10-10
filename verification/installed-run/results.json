@@ -1,0 +1,674 @@
+{
+  "utc": "2026-10-10T06:15:29.5896934+00:00",
+  "os": "Microsoft Windows NT 10.0.26200.0",
+  "framework": ".NET 10.0.12",
+  "upstream": "c3420bb77d6d00ed5fabf975a0945c4f6179bba3",
+  "results": [
+    {
+      "name": "actual VPet PetLoader/PNGAnimation initialized",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "twenty real PNG animation sequences and three static poses",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "all graph resources ready, no upstream character fallback",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / drink",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / eat",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / pickup",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / idle",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / expect",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / jump",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / lick",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / sitdown",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / stretch",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / tilt",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / wag",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / yawn",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / carry",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / trot",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / walk",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / liedown",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / sleep",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / companion",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / shake",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "frame ordering / pet",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "manual feeding cannot be replaced by AFK/autonomy",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "new direct command replaces feeding immediately",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "toy chase starts",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "hide cancels chase and toy, no background movement or queued action",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "restore is a short transition, no startup replay",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "explicit sleep remains stable",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "resuming system input cannot wake explicit sleep",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "sleep survives hidden/restore",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "wake command clears sleep",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "drag owns behavior immediately",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "menu prevents autonomous/companion scheduling",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "AFK enters quiet edge approach",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "AFK arrives at edge and lies quietly facing inward",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "AFK leaves quietly on input",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "complete plush fetch returns and clears toy",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "low energy fetch bounded to short route",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "monitor change cancels stale toy path and clamps location",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "pause blocks new autonomy",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "negative-monitor boundary clamping",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "physical pixels and DIP at 200% boundary",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "weighted idle global cooldown and no consecutive repetition",
+      "passed": true,
+      "evidence": "samples=10"
+    },
+    {
+      "name": "default static companion remains still across one simulated hour and AFK",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "explicit handshake finishes back at selected static idle",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "VPet GameSave LPS \u002B stable flags roundtrip",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "corrupt save restores atomic backup",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "double-corrupt save produces clean defaults",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "selected static companion pose persists",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "ordinary interaction spends exactly four food points",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "ordinary runtime food decay is two points per hour",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "distinct feeds have no cooldown even during eating",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "same feed event is not credited or restarted twice",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "full stomach still accepts feeding and animation",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "hungry below fifteen begins one real gait path",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "central reminder moves gradually inside current work area",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "arrival rests at work-area center and chirps once",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "continuing hunger does not repeat the center path",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "later hunger sound waits at least thirty minutes",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "hunger hysteresis stays active below thirty",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "feeding to thirty clears hunger immediately",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "manual command interrupts hunger without retrying central move",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "hidden hunger creates no motion voice or replay queue",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "paused hunger does not move or chirp",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "explicit sleep suppresses hunger attention",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "AFK quiet companionship suppresses hunger attention",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "global mute suppresses hunger voices",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "hunger-only sound switch suppresses hunger voices",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "hunger episode and transaction record persist",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "restart does not repeat this hunger episode\u0027s central move",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "low-energy hungry path uses walking gait",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "static idle respects autonomous roaming cooldown",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "static idle permits occasional gait-based roaming",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "only ordinary local empty folders qualify",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "creating a folder alone does not feed",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "folder and menu use the same once-per-event accounting",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "right-menu feed follows folder immediately without cooldown",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "empty folder is unchanged and reusable",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "actual hunger bubble is continuously visible",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "actual hunger bubble routes clicks to underlying window",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "hide synchronously hides hunger bubble",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "feeding threshold removes actual persistent bubble",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "hotkey parser rejects invalid and supports replacement",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "actual hotkey conflict returns error",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "system idle timestamp available",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "mute makes no playback request",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "missing audio does not throw or start playback",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "rapid clicks limited without overlap",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "actual VPet trot loop displays every gait frame",
+      "passed": true,
+      "evidence": "0,1,2,3,4,5"
+    },
+    {
+      "name": "gait frame cadence remains responsive",
+      "passed": true,
+      "evidence": "median milliseconds=77.1063"
+    },
+    {
+      "name": "animation never takes foreground focus",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "alpha-mask transparent canvas corner passes",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "alpha-mask includes puppy body",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "corrupt animation falls back to a ready golden graph",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "actual Windows hit routing passes transparent corner to underlying window",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "actual Windows hit routing retains puppy interaction hotspot",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Idle",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Walk",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Trot",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Tilt",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Lick",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Yawn",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Stretch",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Wag",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Sit",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Lie",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Pet",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Eat",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Drink",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Shake",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Sleep",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Expect",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Jump",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Welcome",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / AfkApproach",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / AfkRest",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / WatchToy",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / ChaseToy",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Pickup",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / ReturnToy",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Drop",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / Drag",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "triggerable graph resolved / HungerMove",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "DPI render dimensions 100/125/150/200 percent",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "actual front-sit picture is not looping or moving",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "actual handshake returns to chosen front-sit picture",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "static pose can be selected / Stand",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "static pose can be selected / Lie",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "static pose can be selected / FrontSit",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "actual drinking returns to saved lie-down picture",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "name": "actual WPF hide interrupts fetch and cleans visible toy",
+      "passed": true,
+      "evidence": ""
+    }
+  ],
+  "limitations": [
+    "No cross-process click-through mouse injection performed",
+    "DPI captures use RenderTargetBitmap; actual mixed-DPI monitor switching needs physical test",
+    "No clean Windows Sandbox available in harness",
+    "Audio acoustic quality and full animation continuity require human review"
+  ]
+}

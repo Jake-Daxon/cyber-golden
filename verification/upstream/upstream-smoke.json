@@ -1,0 +1,8 @@
+{
+  "source": "unmodified upstream Core",
+  "commit": "c3420bb77d6d00ed5fabf975a0945c4f6179bba3",
+  "graphs": 20,
+  "distinctDisplayedFrames": 20,
+  "gameSaveRoundtrip": true,
+  "passed": true
+}

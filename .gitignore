@@ -1,0 +1,23 @@
+# Build output and local developer dependencies
+**/bin/
+**/obj/
+**/__pycache__/
+tools/dotnet/
+tools/nuget/
+tools/pythonlibs/
+tools/inno/
+tools/installer-stage-*/
+dist/
+test-data/
+.vs/
+.idea/
+*.user
+*.suo
+*.log
+*.pdb
+.env*
+# Personal reference inputs and user saves must never be uploaded
+cyber-golden-kit-v2/
+golden-photo-assets/
+**/state.json
+**/state.json.bak

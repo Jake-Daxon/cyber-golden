@@ -1,0 +1,26 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>赛博金毛静止姿势与动作预览</title><style>body{font-family:system-ui;background:#eff5f9;color:#27394b;margin:32px}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:20px}figure{margin:0;background:white;border-radius:14px;padding:16px}img{width:160px;height:160px;object-fit:contain}h1{font-size:24px}p{max-width:700px;line-height:1.7}button{padding:8px 16px;margin-top:12px}</style><h1>赛博金毛 · 默认正面静坐</h1><p>双爪落地，普通待机不循环。保留 CD 漫游；主动互动后回到保存的姿势，饥饿提醒是明确例外。下面的卡片保持静止，点击只播放一次。</p><main>
+<figure><img src="pose-FrontSit-160.png" alt="正面静坐 · 双爪落地（默认）"><figcaption>正面静坐 · 双爪落地（默认）</figcaption></figure>
+<figure><img src="pose-Stand-160.png" alt="自然站立"><figcaption>自然站立</figcaption></figure>
+<figure><img src="pose-Lie-160.png" alt="安静趴下"><figcaption>安静趴下</figcaption></figure>
+</main><h2>保留的主动动作</h2><main>
+<figure><img id="walk" src="walk-poster.png" alt="走路"><figcaption>走路</figcaption><button onclick="play('walk',498)">播放一次</button></figure>
+<figure><img id="trot" src="trot-poster.png" alt="小跑"><figcaption>小跑</figcaption><button onclick="play('trot',402)">播放一次</button></figure>
+<figure><img id="sitdown" src="sitdown-poster.png" alt="sitdown"><figcaption>sitdown</figcaption><button onclick="play('sitdown',840)">播放一次</button></figure>
+<figure><img id="liedown" src="liedown-poster.png" alt="坐趴转换"><figcaption>坐趴转换</figcaption><button onclick="play('liedown',1080)">播放一次</button></figure>
+<figure><img id="tilt" src="tilt-poster.png" alt="tilt"><figcaption>tilt</figcaption><button onclick="play('tilt',900)">播放一次</button></figure>
+<figure><img id="lick" src="lick-poster.png" alt="lick"><figcaption>lick</figcaption><button onclick="play('lick',720)">播放一次</button></figure>
+<figure><img id="yawn" src="yawn-poster.png" alt="yawn"><figcaption>yawn</figcaption><button onclick="play('yawn',1200)">播放一次</button></figure>
+<figure><img id="shake" src="shake-poster.png" alt="握手"><figcaption>握手</figcaption><button onclick="play('shake',960)">播放一次</button></figure>
+<figure><img id="eat" src="eat-poster.png" alt="吃饭"><figcaption>吃饭</figcaption><button onclick="play('eat',1080)">播放一次</button></figure>
+<figure><img id="drink" src="drink-poster.png" alt="drink"><figcaption>drink</figcaption><button onclick="play('drink',1080)">播放一次</button></figure>
+<figure><img id="jump" src="jump-poster.png" alt="jump"><figcaption>jump</figcaption><button onclick="play('jump',600)">播放一次</button></figure>
+<figure><img id="stretch" src="stretch-poster.png" alt="stretch"><figcaption>stretch</figcaption><button onclick="play('stretch',1080)">播放一次</button></figure>
+<figure><img id="idle" src="idle-poster.png" alt="自然站立 / 眨眼"><figcaption>自然站立 / 眨眼</figcaption><button onclick="play('idle',3600)">播放一次</button></figure>
+<figure><img id="pet" src="pet-poster.png" alt="pet"><figcaption>pet</figcaption><button onclick="play('pet',1080)">播放一次</button></figure>
+<figure><img id="sleep" src="sleep-poster.png" alt="睡眠呼吸"><figcaption>睡眠呼吸</figcaption><button onclick="play('sleep',4200)">播放一次</button></figure>
+<figure><img id="wag" src="wag-poster.png" alt="开心摇尾"><figcaption>开心摇尾</figcaption><button onclick="play('wag',600)">播放一次</button></figure>
+<figure><img id="pickup" src="pickup-poster.png" alt="pickup"><figcaption>pickup</figcaption><button onclick="play('pickup',960)">播放一次</button></figure>
+<figure><img id="carry" src="carry-poster.png" alt="carry"><figcaption>carry</figcaption><button onclick="play('carry',498)">播放一次</button></figure>
+<figure><img id="expect" src="expect-poster.png" alt="期待 / 坐姿"><figcaption>期待 / 坐姿</figcaption><button onclick="play('expect',1800)">播放一次</button></figure>
+<figure><img id="companion" src="companion-poster.png" alt="趴下陪伴"><figcaption>趴下陪伴</figcaption><button onclick="play('companion',4800)">播放一次</button></figure>
+</main><script>const timers={};function play(n,t){clearTimeout(timers[n]);const im=document.getElementById(n);im.src=n+".gif?v="+Date.now();timers[n]=setTimeout(()=>im.src=n+"-poster.png",t+60)}</script></html>

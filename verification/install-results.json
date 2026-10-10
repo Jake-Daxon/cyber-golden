@@ -1,0 +1,13 @@
+{
+  "testedAt": "2026-10-10T14:15:30.5965412+08:00",
+  "installExit": 0,
+  "startMenuCreated": true,
+  "runtimeResourcesPresent": true,
+  "installedRunExit": 0,
+  "uninstallExit": 0,
+  "applicationRemoved": true,
+  "startMenuRemoved": true,
+  "defaultUserDataRetained": true,
+  "cleanMachine": false,
+  "note": "Current Windows machine, isolated installation; no clean VM/no-.NET test claimed"
+}

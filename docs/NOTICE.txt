@@ -1,0 +1,38 @@
+CyberGolden / 赛博金毛 0.3.0
+Based on VPet-Simulator.Core by LorisYounger / exLB.org.
+Upstream: https://github.com/LorisYounger/VPet
+Pinned commit: c3420bb77d6d00ed5fabf975a0945c4f6179bba3
+VPet copyright notices are retained in source. License: Apache-2.0 (LICENSE-VPet.txt).
+Modifications, 2026-10-10: independent offline WPF host, behavior engine, local
+user persistence, silhouette hit region, toys and local audio; Core retargeted to
+.NET 10; deterministic frame sorting, stale playback guards and frame events.
+No original VPet character animations, Steamworks, workshop, account/API or
+network initialization are part of the CyberGolden runtime.
+
+Dog voice source:
+"Barking of a dog.ogg", Amada44, own work, 2011-04-21.
+https://commons.wikimedia.org/wiki/File:Barking_of_a_dog.ogg
+https://upload.wikimedia.org/wikipedia/commons/a/a2/Barking_of_a_dog.ogg
+License: Creative Commons Attribution-ShareAlike 3.0 Unported.
+https://creativecommons.org/licenses/by-sa/3.0/
+Derivatives click.wav / happy.wav: cropped, mono, resampled/pitched up,
+low-pass filtered, normalized and faded; happy contains two softened barks.
+These two derivatives are distributed under the same CC BY-SA 3.0 license.
+This recording is NOT the photographed puppy and its age/breed is unknown.
+eat.wav / drink.wav / breath.wav: original deterministic procedural foley,
+not a recording of the puppy; project contributors dedicate these three files
+to CC0 1.0: https://creativecommons.org/publicdomain/zero/1.0/
+
+Artwork: generated with built-in imagegen using user-supplied puppy photos and
+PNG identity references. Side/back anatomy, tail and all motions are inferred.
+Original user photos/references are deliberately excluded from installer/ZIP.
+No third-party font files are bundled. UI uses installed Windows system fonts.
+Toy drawings and app icon are project artwork.
+
+Runtime dependencies and their complete extracted license texts are included
+in the licenses/ directory. See THIRD-PARTY.md in the source delivery.
+Microsoft .NET Windows Desktop runtime: MIT and Microsoft third-party notices.
+SkiaSharp and native Skia components: MIT/BSD notices included.
+LinePutScript / Localization / Panuon: applicable package licenses included.
+Installer created with Inno Setup, Copyright Jordan Russell / Martijn Laan.
+https://jrsoftware.org/ (LICENSE-Inno.txt).
