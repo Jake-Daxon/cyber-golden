@@ -39,7 +39,11 @@ jobs:
       - name: Run on real Android emulator
         run: |
           sudo chmod 666 /dev/kvm
-          echo no | avdmanager create avd -n CyberGoldenCI -k 'system-images;android-35;default;x86_64' --force
+          export ANDROID_AVD_HOME="$RUNNER_TEMP/cybergolden-avd"
+          mkdir -p "$ANDROID_AVD_HOME"
+          echo no | avdmanager create avd -n CyberGoldenCI -k 'system-images;android-35;default;x86_64' -p "$ANDROID_AVD_HOME/CyberGoldenCI.avd" --force
+          test -f "$ANDROID_AVD_HOME/CyberGoldenCI.avd/config.ini"
+          printf 'avd.ini.encoding=UTF-8\npath=%s\ntarget=android-35\n' "$ANDROID_AVD_HOME/CyberGoldenCI.avd" > "$ANDROID_AVD_HOME/CyberGoldenCI.ini"
           "$ANDROID_HOME/emulator/emulator" -avd CyberGoldenCI -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader -feature -Vulkan -no-metrics > /tmp/cybergolden-emulator.log 2>&1 &
           if ! timeout 90 adb wait-for-device; then
             tail -80 /tmp/cybergolden-emulator.log | sed '/adb.pubkey/d'
