@@ -33,6 +33,8 @@ try {
   Run-Checked "$bt/aapt2.exe" @('link','-o','base.apk','-I','android.jar','--manifest','AndroidManifest.xml','-A','assets','-0','wav','resources.zip')
   Copy-Item 'base.apk','resources.zip' -Destination $build -Force
 } finally { Pop-Location }
+& $Python (Join-Path $PSScriptRoot 'finalize-android-zip.py') "$build/base.apk"
+if($LASTEXITCODE -ne 0){throw 'APK entry normalization failed'}
 $classes=@(Get-ChildItem "$build/classes" -Recurse -Filter '*.class' | ForEach-Object FullName)
 Run-Checked "$bt/d8.bat" (@('--release','--min-api','26','--lib',$platform,'--output',"$build/dex")+$classes)
 Copy-Item -LiteralPath "$build/base.apk" -Destination "$build/unsigned.apk" -Force

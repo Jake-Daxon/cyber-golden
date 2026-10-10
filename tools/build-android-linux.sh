@@ -13,6 +13,7 @@ javac -encoding UTF-8 -d android/build/tests android/src/com/jakedaxon/cybergold
 java -cp android/build/tests com.jakedaxon.cybergolden.PetStateTest | tee verification/android/behavior-test.log
 "$BT/aapt2" compile --dir android/res -o android/build/resources.zip
 "$BT/aapt2" link -o android/build/base.apk -I "$PLATFORM" --manifest android/AndroidManifest.xml -A android/assets -0 wav android/build/resources.zip
+python3 tools/finalize-android-zip.py android/build/base.apk
 mapfile -t classes < <(find android/build/classes -name '*.class')
 "$BT/d8" --release --min-api 26 --lib "$PLATFORM" --output android/build/dex "${classes[@]}"
 jar uf android/build/base.apk -C android/build/dex classes.dex

@@ -40,19 +40,25 @@ jobs:
         run: |
           sudo chmod 666 /dev/kvm
           echo no | avdmanager create avd -n CyberGoldenCI -k 'system-images;android-35;default;x86_64' --force
-          "$ANDROID_HOME/emulator/emulator" -avd CyberGoldenCI -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -no-metrics > /tmp/cybergolden-emulator.log 2>&1 &
-          adb wait-for-device
+          "$ANDROID_HOME/emulator/emulator" -avd CyberGoldenCI -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader -feature -Vulkan -no-metrics > /tmp/cybergolden-emulator.log 2>&1 &
+          if ! timeout 90 adb wait-for-device; then
+            tail -80 /tmp/cybergolden-emulator.log | sed '/adb.pubkey/d'
+            exit 1
+          fi
           for i in $(seq 1 120); do
             if [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ]; then break; fi
             sleep 3
           done
-          test "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1
+          if [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" != 1 ]; then
+            tail -80 /tmp/cybergolden-emulator.log | sed '/adb.pubkey/d'
+            exit 1
+          fi
           adb shell input keyevent 82
           adb install android/build/ci-app.apk
           adb install android/build/instrumentation/tests.apk
           adb shell appops set com.jakedaxon.cybergolden SYSTEM_ALERT_WINDOW allow
           adb shell pm grant com.jakedaxon.cybergolden android.permission.POST_NOTIFICATIONS
-          adb shell am instrument -w com.jakedaxon.cybergolden.tests/com.jakedaxon.cybergolden.AndroidTestRunner | tee verification/android/runtime-test.log
+          timeout 120 adb shell am instrument -w com.jakedaxon.cybergolden.tests/com.jakedaxon.cybergolden.AndroidTestRunner | tee verification/android/runtime-test.log
           grep -Eq 'PASS: [0-9]+ Android runtime assertions' verification/android/runtime-test.log
           adb exec-out run-as com.jakedaxon.cybergolden.tests cat files/main.png > verification/android/main.png
           adb logcat -d -s AndroidRuntime:E CyberGolden:E > verification/android/app-errors.log
