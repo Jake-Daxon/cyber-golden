@@ -10,7 +10,7 @@
 
 | 文件 | 用途 |
 |---|---|
-| [下载 Android APK（测试版）](https://github.com/Jake-Daxon/cyber-golden/releases/download/android-v0.1.0/CyberGolden-Android-0.1.0.apk) | Android 8.0+：下载安装后开启悬浮窗权限；iPhone 无法安装 |
+| [下载 Android APK（测试版）](https://github.com/Jake-Daxon/cyber-golden/releases/download/android-v0.1.1/CyberGolden-Android-0.1.1.apk) | Android 8.0+：下载安装后开启悬浮窗权限；iPhone 无法安装 |
 | [下载 Windows 安装 EXE](https://github.com/Jake-Daxon/cyber-golden/releases/download/v0.3.0/CyberGolden-Setup-0.3.0-x64.exe) | 推荐：双击安装，开始菜单、可选桌面快捷方式、卸载 |
 | [下载便携 ZIP](https://github.com/Jake-Daxon/cyber-golden/releases/download/v0.3.0/CyberGolden-Portable-0.3.0-x64.zip) | 解压整个目录，运行 CyberGolden.exe |
 | [逐步安装教程](docs/朋友安装教程.txt) | 先点哪个、后点哪个 |
@@ -24,7 +24,7 @@
 
 [安卓安装教程](docs/安卓安装教程.md) · [安卓源码与构建](android/README.md) · [安卓验证报告](docs/安卓验证报告.md)。
 
-安卓版已通过 52 项行为断言及 Android 15 模拟器中的 23 项运行断言、安装/启动/卸载。首次测试版仍需真实品牌手机确认权限和省电表现。
+安卓版已通过 52 项行为断言及 Android 15 模拟器中的 77 项运行断言、安装/启动/卸载。0.1.1 的长按悬浮菜单可上下滚动，提供完整动作；安装时直接覆盖旧版，无需卸载。各品牌手机的权限和省电表现仍需实际确认。
 
 <img src="previews/android-main.png" width="280" alt="安卓 App 与悬浮金毛的真实模拟器截图" />
 
