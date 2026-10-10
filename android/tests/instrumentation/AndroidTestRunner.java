@@ -40,7 +40,7 @@ public final class AndroidTestRunner extends Instrumentation {
             });
             waitForIdleSync();SystemClock.sleep(1000);
             Bitmap screenshot=getUiAutomation().takeScreenshot();check(screenshot!=null,"real Android screen capture");
-            if(screenshot!=null){try(FileOutputStream out=new FileOutputStream(new File(getContext().getFilesDir(),"main.png"))){screenshot.compress(Bitmap.CompressFormat.PNG,100,out);}}
+            if(screenshot!=null){try(ParcelFileDescriptor command=getUiAutomation().executeShellCommand("screencap -p /data/local/tmp/cybergolden-main.png");InputStream output=new FileInputStream(command.getFileDescriptor())){byte[] buffer=new byte[4096];while(output.read(buffer)!=-1){}}}
             runOnMainSync(()->{service.hide(true);activity.finish();});
             result.putString("stream",report.toString()+"PASS: "+checks+" Android runtime assertions\n");finish(Activity.RESULT_OK,result);
         }catch(Throwable failure){result.putString("stream",report+"FAIL: "+failure.toString()+"\n"+android.util.Log.getStackTraceString(failure));finish(Activity.RESULT_CANCELED,result);}

@@ -25,6 +25,8 @@ public final class PetStateTest {
         s=state();s.autoMove=true;s.x=0;s.y=0;s.nextRoam=1000001;s.tick(1000002,.01,300,600);check(s.moving(),"autonomous roam retained");
         s=state();s.food=14;s.tick(1600001,.01,300,600);check(s.quiet&&!s.centerAttempted,"10min quiet suppresses hunger");
         s=state();s.pose="Lie";s.interact("pet",null,1000000);s.tick(1003000,3,300,600);check(s.pose.equals("Lie")&&s.action.equals("idle"),"chosen pose retained");
+        s=state();s.food=50;s.hidden=true;s.tick(8200000,7200,300,600);check(s.food==46,"Doze elapsed food accounting");
+        s=state();s.food=50;s.hidden=true;s.tick(87400000,86400,300,600);check(s.food==42,"Doze accounting cap");
         System.out.println("PASS: "+checks+" Android behavior assertions");
     }
 }

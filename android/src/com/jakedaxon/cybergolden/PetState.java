@@ -69,7 +69,9 @@ public final class PetState {
         x+=(float)(dx/d*step);y+=(float)(dy/d*step);return false;
     }
     public void tick(long now,double dt,float maxX,float maxY){
-        dt=clamp(dt,0,60);food=Math.max(0,food-dt*2/3600);updateHunger(now);
+        double elapsed=clamp(dt,0,14400);
+        food=Math.max(elapsed>60?5:0,food-elapsed*2/3600);
+        dt=clamp(dt,0,60);updateHunger(now);
         if(hungry&&(!active()||now-lastInput>=600000)){
             if(nextHungerSound<=now)nextHungerSound=now+1800000;
         }
